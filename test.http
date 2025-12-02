@@ -14,16 +14,16 @@ Content-Type: application/json
 
 ### Profile - requires Authorization header
 GET http://localhost:8000/api/profile
-Authorization: Bearer <ACCESS_TOKEN>
+Authorization: Bearer 3|rtWu5N9UgWDfKhYIMH9RNGvmhlC5OmY3C9ZzccWff18b2cf1
 
 ### Logout - invalidate current token
 POST http://localhost:8000/api/logout
 Content-Type: application/json
-Authorization: Bearer <ACCESS_TOKEN>
+Authorization: Bearer 3|rtWu5N9UgWDfKhYIMH9RNGvmhlC5OmY3C9ZzccWff18b2cf1
 
 ### Admin Dashboard - only for admin role
 GET http://localhost:8000/api/admin/dashboard
-Authorization: Bearer <ACCESS_TOKEN>
+Authorization: Bearer 3|rtWu5N9UgWDfKhYIMH9RNGvmhlC5OmY3C9ZzccWff18b2cf1
 
 # Notes:
 # - The app in this workspace seeds an admin user (see `database/seeders/DatabaseSeeder.php`):

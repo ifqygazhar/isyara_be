@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Log;
 
 class CheckRole
 {
@@ -15,10 +15,25 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, $role)
     {
-        if (! $request->user() || $request->user()->role !== $role) {
-            return response()->json(['message' => 'Unauthorized / Akses Ditolak'], 403);
-        }
+        try {
+            $user = $request->user();
 
-        return $next($request);
+            Log::debug('CheckRole middleware', [
+                'has_user' => $user ? true : false,
+                'user_id' => $user?->id,
+                'user_role' => $user?->role,
+                'required_role' => $role,
+            ]);
+
+            if (! $user || $user->role !== $role) {
+                return response()->json(['message' => 'Unauthorized / Akses Ditolak'], 403);
+            }
+
+            return $next($request);
+        } catch (\Throwable $e) {
+            Log::error('CheckRole exception', ['exception' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
+            return response()->json(['message' => 'Server error in role check'], 500);
+        }
     }
 }
