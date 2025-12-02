@@ -9,7 +9,7 @@ class KamusKata extends Model
 {
     use HasFactory;
 
-    protected $table = 'kamus_kata';
+    protected $table = 'kamus_katas';
 
     protected $fillable = [
         'image_url',

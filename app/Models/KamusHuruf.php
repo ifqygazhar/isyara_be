@@ -9,7 +9,7 @@ class KamusHuruf extends Model
 {
     use HasFactory;
 
-    protected $table = 'kamus_huruf';
+    protected $table = 'kamus_hurufs';
 
     protected $fillable = [
         'image_url',

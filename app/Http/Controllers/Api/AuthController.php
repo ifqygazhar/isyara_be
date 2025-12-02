@@ -39,6 +39,34 @@ class AuthController extends Controller
         ]);
     }
 
+    public function register(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required_with:password|string',
+            // prevent client from setting role to admin
+            'role' => 'prohibited',
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'] ?? null,
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+            'role' => 'user',
+        ]);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Register success',
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user,
+        ], 201);
+    }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
