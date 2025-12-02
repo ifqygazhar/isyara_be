@@ -1,0 +1,33 @@
+
+### Login (admin) - get access token
+POST http://localhost:8000/api/login
+Content-Type: application/json
+
+{
+	"email": "testadmin@gmail.com",
+	"password": "inipasswordadmin",
+	"role": "admin"
+}
+
+# Copy the `access_token` value from the JSON response (response.access_token)
+# and replace <ACCESS_TOKEN> in the requests below.
+
+### Profile - requires Authorization header
+GET http://localhost:8000/api/profile
+Authorization: Bearer <ACCESS_TOKEN>
+
+### Logout - invalidate current token
+POST http://localhost:8000/api/logout
+Content-Type: application/json
+Authorization: Bearer <ACCESS_TOKEN>
+
+### Admin Dashboard - only for admin role
+GET http://localhost:8000/api/admin/dashboard
+Authorization: Bearer <ACCESS_TOKEN>
+
+# Notes:
+# - The app in this workspace seeds an admin user (see `database/seeders/DatabaseSeeder.php`):
+#   email: `testadmin@gmail.com`, password: `inipasswordadmin`, role: `admin`.
+# - If your app runs on a different host/port, update the URLs accordingly (e.g., http://127.0.0.1:8000).
+# - For VS Code REST Client extension: you can paste the token into the Authorization header
+#   or set an environment variable and use `Authorization: Bearer {{token}}`.
