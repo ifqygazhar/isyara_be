@@ -18,8 +18,8 @@ class DashboardController extends Controller
     {
         $stats = [
             'users' => User::count(),
-            'letters' => KamusKata::count(),
-            'words' => KamusHuruf::count(),
+            'letters' => KamusHuruf::count(),
+            'words' => KamusKata::count(),
             'news' => News::count(),
             'events' => EventModel::count(),
             'communities' => Community::count(),

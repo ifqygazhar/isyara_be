@@ -13,30 +13,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::post('logout', [DashboardController::class, 'logout'])->name('logout');
 
-        // CRUD Routes untuk manage data
-        Route::get('users', function () {
-            return view('admin.users.index');
-        })->name('users');
-        Route::get('letters', function () {
-            return view('admin.letters.index');
-        })->name('letters');
-        Route::get('words', function () {
-            return view('admin.words.index');
-        })->name('words');
-        Route::get('news', function () {
-            return view('admin.news.index');
-        })->name('news');
-        Route::get('events', function () {
-            return view('admin.events.index');
-        })->name('events');
-        Route::get('community', function () {
-            return view('admin.community.index');
-        })->name('community');
-        Route::get('levels', function () {
-            return view('admin.levels.index');
-        })->name('levels');
-        Route::get('contact', function () {
-            return view('admin.contact.index');
-        })->name('contact');
+        // Management Pages (View only - CRUD via API)
+        Route::get('users', fn () => view('admin.users.index'))->name('users');
+        Route::get('letters', fn () => view('admin.letters.index'))->name('letters');
+        Route::get('words', fn () => view('admin.words.index'))->name('words');
+        Route::get('news', fn () => view('admin.news.index'))->name('news');
+        Route::get('events', fn () => view('admin.events.index'))->name('events');
+        Route::get('community', fn () => view('admin.community.index'))->name('community');
+        Route::get('levels', fn () => view('admin.levels.index'))->name('levels');
+        Route::get('contact', fn () => view('admin.contact.index'))->name('contact');
     });
 });

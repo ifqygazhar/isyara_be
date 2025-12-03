@@ -32,7 +32,11 @@ class AuthController extends Controller
 
             $request->session()->regenerate();
 
-            return redirect()->intended(route('admin.dashboard'));
+            // Generate Sanctum token for API requests
+            $token = Auth::user()->createToken('admin-token')->plainTextToken;
+
+            return redirect()->intended(route('admin.dashboard'))
+                ->with('auth_token', $token);
         }
 
         return back()->withErrors([
