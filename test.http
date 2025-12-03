@@ -1,33 +1,513 @@
+### Variables
+@baseUrl = http://127.0.0.1:8000/api
+@token = 4|gUbVVr9EmuVP33KGoArp8ZMU8dNSS9FUvDtAtkiOdd1751df
 
-### Login (admin) - get access token
-POST http://localhost:8000/api/login
+################################################################################
+# AUTH ENDPOINTS
+################################################################################
+
+### Register New User
+POST {{baseUrl}}/register
 Content-Type: application/json
 
 {
-	"email": "testadmin@gmail.com",
-	"password": "inipasswordadmin",
-	"role": "admin"
+    "name": "Test User",
+    "email": "testuser@example.com",
+    "password": "password123",
+    "password_confirmation": "password123"
 }
 
-# Copy the `access_token` value from the JSON response (response.access_token)
-# and replace <ACCESS_TOKEN> in the requests below.
-
-### Profile - requires Authorization header
-GET http://localhost:8000/api/profile
-Authorization: Bearer 3|rtWu5N9UgWDfKhYIMH9RNGvmhlC5OmY3C9ZzccWff18b2cf1
-
-### Logout - invalidate current token
-POST http://localhost:8000/api/logout
+### Login as Admin
+POST {{baseUrl}}/login
 Content-Type: application/json
-Authorization: Bearer 3|rtWu5N9UgWDfKhYIMH9RNGvmhlC5OmY3C9ZzccWff18b2cf1
 
-### Admin Dashboard - only for admin role
-GET http://localhost:8000/api/admin/dashboard
-Authorization: Bearer 3|rtWu5N9UgWDfKhYIMH9RNGvmhlC5OmY3C9ZzccWff18b2cf1
+{
+    "email": "testadmin@gmail.com",
+    "password": "inipasswordadmin",
+    "role": "admin"
+}
 
-# Notes:
-# - The app in this workspace seeds an admin user (see `database/seeders/DatabaseSeeder.php`):
-#   email: `testadmin@gmail.com`, password: `inipasswordadmin`, role: `admin`.
-# - If your app runs on a different host/port, update the URLs accordingly (e.g., http://127.0.0.1:8000).
-# - For VS Code REST Client extension: you can paste the token into the Authorization header
-#   or set an environment variable and use `Authorization: Bearer {{token}}`.
+### Login as Regular User
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+    "email": "testuser@example.com",
+    "password": "password123",
+    "role": "user"
+}
+
+### Logout
+POST {{baseUrl}}/logout
+Authorization: Bearer {{token}}
+
+################################################################################
+# PROFILE ENDPOINTS (All Authenticated Users)
+################################################################################
+
+### Get Profile
+GET {{baseUrl}}/profile
+Authorization: Bearer {{token}}
+
+### Update Profile
+PUT {{baseUrl}}/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "Updated Name",
+    "email": "updated@example.com"
+}
+
+### Delete Profile
+DELETE {{baseUrl}}/profile
+Authorization: Bearer {{token}}
+
+################################################################################
+# USER MANAGEMENT (Admin Only)
+################################################################################
+
+### Get All Users
+GET {{baseUrl}}/users
+Authorization: Bearer {{token}}
+
+### Get Single User
+GET {{baseUrl}}/users/1
+Authorization: Bearer {{token}}
+
+### Create User
+POST {{baseUrl}}/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "New User",
+    "email": "newuser@example.com",
+    "password": "password123",
+    "role": "user"
+}
+
+### Update User
+PUT {{baseUrl}}/users/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "Updated User Name",
+    "email": "updated@example.com",
+    "role": "user"
+}
+
+### Delete User
+DELETE {{baseUrl}}/users/1
+Authorization: Bearer {{token}}
+
+################################################################################
+# DICTIONARY - LETTERS
+################################################################################
+
+### Get All Letters
+GET {{baseUrl}}/dictionary/letters
+Authorization: Bearer {{token}}
+
+### Get Single Letter
+GET {{baseUrl}}/dictionary/letters/1
+Authorization: Bearer {{token}}
+
+### Create Letter (Admin Only)
+POST {{baseUrl}}/dictionary/letters
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="huruf"
+
+A
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="deskripsi"
+
+Letter A description
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="gambar"; filename="letter-a.jpg"
+Content-Type: image/jpeg
+
+< ./path/to/image.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Update Letter (Admin Only)
+POST {{baseUrl}}/dictionary/letters/1
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="_method"
+
+PUT
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="huruf"
+
+A
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="deskripsi"
+
+Updated description
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Delete Letter (Admin Only)
+DELETE {{baseUrl}}/dictionary/letters/1
+Authorization: Bearer {{token}}
+
+################################################################################
+# DICTIONARY - WORDS
+################################################################################
+
+### Get All Words
+GET {{baseUrl}}/dictionary/words
+Authorization: Bearer {{token}}
+
+### Get Single Word
+GET {{baseUrl}}/dictionary/words/1
+Authorization: Bearer {{token}}
+
+### Create Word (Admin Only)
+POST {{baseUrl}}/dictionary/words
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="kata"
+
+Halo
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="deskripsi"
+
+Greeting word
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="video"; filename="halo.mp4"
+Content-Type: video/mp4
+
+< ./path/to/video.mp4
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Update Word (Admin Only)
+POST {{baseUrl}}/dictionary/words/1
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="_method"
+
+PUT
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="kata"
+
+Halo
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="deskripsi"
+
+Updated description
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Delete Word (Admin Only)
+DELETE {{baseUrl}}/dictionary/words/1
+Authorization: Bearer {{token}}
+
+################################################################################
+# INFORMATION - NEWS
+################################################################################
+
+### Get All News
+GET {{baseUrl}}/information/news
+Authorization: Bearer {{token}}
+
+### Get Single News
+GET {{baseUrl}}/information/news/1
+Authorization: Bearer {{token}}
+
+### Create News (Admin Only)
+POST {{baseUrl}}/information/news
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="judul"
+
+Breaking News
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="konten"
+
+This is the news content
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="gambar"; filename="news.jpg"
+Content-Type: image/jpeg
+
+< ./path/to/news-image.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Update News (Admin Only)
+POST {{baseUrl}}/information/news/1
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="_method"
+
+PUT
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="judul"
+
+Updated News Title
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="konten"
+
+Updated content
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Delete News (Admin Only)
+DELETE {{baseUrl}}/information/news/1
+Authorization: Bearer {{token}}
+
+################################################################################
+# INFORMATION - EVENTS
+################################################################################
+
+### Get All Events
+GET {{baseUrl}}/information/events
+Authorization: Bearer {{token}}
+
+### Get Single Event
+GET {{baseUrl}}/information/events/1
+Authorization: Bearer {{token}}
+
+### Create Event (Admin Only)
+POST {{baseUrl}}/information/events
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "judul_event": "Workshop BISINDO",
+    "deskripsi": "Learn sign language basics",
+    "tanggal_mulai": "2024-01-15",
+    "tanggal_selesai": "2024-01-16",
+    "lokasi": "Jakarta Convention Center",
+    "penyelenggara": "Isyara Foundation"
+}
+
+### Update Event (Admin Only)
+PUT {{baseUrl}}/information/events/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "judul_event": "Updated Event Title",
+    "deskripsi": "Updated description",
+    "tanggal_mulai": "2024-02-15",
+    "tanggal_selesai": "2024-02-16",
+    "lokasi": "Updated Location",
+    "penyelenggara": "Updated Organizer"
+}
+
+### Delete Event (Admin Only)
+DELETE {{baseUrl}}/information/events/1
+Authorization: Bearer {{token}}
+
+################################################################################
+# INFORMATION - COMMUNITY
+################################################################################
+
+### Get All Communities
+GET {{baseUrl}}/information/community
+Authorization: Bearer {{token}}
+
+### Get Single Community
+GET {{baseUrl}}/information/community/1
+Authorization: Bearer {{token}}
+
+### Create Community (Admin Only)
+POST {{baseUrl}}/information/community
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nama_komunitas": "Jakarta Sign Language Community",
+    "deskripsi": "A community for sign language learners",
+    "kontak": "contact@jslc.com",
+    "lokasi": "Jakarta"
+}
+
+### Update Community (Admin Only)
+PUT {{baseUrl}}/information/community/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nama_komunitas": "Updated Community Name",
+    "deskripsi": "Updated description",
+    "kontak": "updated@contact.com",
+    "lokasi": "Updated Location"
+}
+
+### Delete Community (Admin Only)
+DELETE {{baseUrl}}/information/community/1
+Authorization: Bearer {{token}}
+
+################################################################################
+# QUIZ - LEVELS
+################################################################################
+
+### Get All Levels
+GET {{baseUrl}}/quiz/levels
+Authorization: Bearer {{token}}
+
+### Get Single Level
+GET {{baseUrl}}/quiz/levels/1
+Authorization: Bearer {{token}}
+
+### Create Level (Admin Only)
+POST {{baseUrl}}/quiz/levels
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nama_level": "Beginner",
+    "deskripsi": "Basic sign language quiz",
+    "urutan": 1
+}
+
+### Update Level (Admin Only)
+PUT {{baseUrl}}/quiz/levels/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nama_level": "Updated Level Name",
+    "deskripsi": "Updated description",
+    "urutan": 1
+}
+
+### Delete Level (Admin Only)
+DELETE {{baseUrl}}/quiz/levels/1
+Authorization: Bearer {{token}}
+
+################################################################################
+# QUIZ - QUESTIONS
+################################################################################
+
+### Get All Questions in Level
+GET {{baseUrl}}/quiz/levels/1/questions
+Authorization: Bearer {{token}}
+
+### Get Single Question
+GET {{baseUrl}}/quiz/levels/1/questions/1
+Authorization: Bearer {{token}}
+
+### Create Question (Admin Only)
+POST {{baseUrl}}/quiz/levels/1/questions
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="teks_pertanyaan"
+
+What is the sign for "Hello"?
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="opsi_a"
+
+Option A
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="opsi_b"
+
+Option B
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="opsi_c"
+
+Option C
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="opsi_d"
+
+Option D
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="jawaban_benar"
+
+A
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="video_pertanyaan"; filename="question.mp4"
+Content-Type: video/mp4
+
+< ./path/to/question-video.mp4
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Update Question (Admin Only)
+POST {{baseUrl}}/quiz/levels/1/questions/1
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="_method"
+
+PUT
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="teks_pertanyaan"
+
+Updated question text
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="opsi_a"
+
+Updated Option A
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="jawaban_benar"
+
+B
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Delete Question (Admin Only)
+DELETE {{baseUrl}}/quiz/levels/1/questions/1
+Authorization: Bearer {{token}}
+
+### Check Answer (User)
+POST {{baseUrl}}/quiz/levels/1/questions/1/answer
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "jawaban_user": "A"
+}
+
+### Check Level Completion (User)
+GET {{baseUrl}}/quiz/levels/1/completion
+Authorization: Bearer {{token}}
+
+################################################################################
+# CONTACT US
+################################################################################
+
+### Submit Contact Form (All Users)
+POST {{baseUrl}}/contact
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nama": "John Doe",
+    "email": "john@example.com",
+    "pesan": "I have a question about the app"
+}
+
+### Get All Contact Messages (Admin Only)
+GET {{baseUrl}}/contact
+Authorization: Bearer {{token}}
+
+### Get Single Contact Message (Admin Only)
+GET {{baseUrl}}/contact/1
+Authorization: Bearer {{token}}
+
+### Delete Contact Message (Admin Only)
+DELETE {{baseUrl}}/contact/1
+Authorization: Bearer {{token}}
+
+################################################################################
+# ADMIN DASHBOARD
+################################################################################
+
+### Admin Dashboard Stats
+GET {{baseUrl}}/admin/dashboard
+Authorization: Bearer {{token}}
