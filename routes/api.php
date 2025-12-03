@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\Dictionary\WordController;
 use App\Http\Controllers\Api\Information\CommunityController;
 use App\Http\Controllers\Api\Information\EventController;
 use App\Http\Controllers\Api\Information\NewsController;
+use App\Http\Controllers\Api\Quiz\LevelController;
+use App\Http\Controllers\Api\Quiz\QuestionController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -41,6 +43,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/information/community', [CommunityController::class, 'store']);
         Route::put('/information/community/{id}', [CommunityController::class, 'update']);
         Route::delete('/information/community/{id}', [CommunityController::class, 'destroy']);
+
+        // Levels (Admin only: create, update, delete)
+        Route::post('/quiz/levels', [LevelController::class, 'store']);
+        Route::put('/quiz/levels/{levelId}', [LevelController::class, 'update']);
+        Route::delete('/quiz/levels/{levelId}', [LevelController::class, 'destroy']);
+
+        // Questions (Admin only: create, update, delete)
+        Route::post('/quiz/levels/{levelId}/questions', [QuestionController::class, 'store']);
+        Route::put('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'update']);
+        Route::delete('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'destroy']);
     });
 
     // --- Bisa Semua Role ---
@@ -63,5 +75,17 @@ Route::middleware('auth:sanctum')->group(function () {
     // Community
     Route::get('/information/community', [CommunityController::class, 'index']);
     Route::get('/information/community/{id}', [CommunityController::class, 'show']);
+
+    // Levels (Read)
+    Route::get('/quiz/levels', [LevelController::class, 'index']);
+    Route::get('/quiz/levels/{levelId}', [LevelController::class, 'show']);
+
+    // Questions (Read)
+    Route::get('/quiz/levels/{levelId}/questions', [QuestionController::class, 'index']);
+    Route::get('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'show']);
+
+    // Check Answer & Completion (User)
+    Route::post('/quiz/levels/{levelId}/questions/{questionId}/answer', [QuestionController::class, 'checkAnswer']);
+    Route::get('/quiz/levels/{levelId}/completion', [QuestionController::class, 'checkCompletion']);
 
 });
