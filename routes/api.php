@@ -1,13 +1,16 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\Dictionary\LetterController;
 use App\Http\Controllers\Api\Dictionary\WordController;
 use App\Http\Controllers\Api\Information\CommunityController;
 use App\Http\Controllers\Api\Information\EventController;
 use App\Http\Controllers\Api\Information\NewsController;
+use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\Quiz\LevelController;
 use App\Http\Controllers\Api\Quiz\QuestionController;
+use App\Http\Controllers\Api\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -53,13 +56,26 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/quiz/levels/{levelId}/questions', [QuestionController::class, 'store']);
         Route::put('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'update']);
         Route::delete('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'destroy']);
+
+        // Contact Us (Admin: view all, view single, delete)
+        Route::get('/contact', [ContactUsController::class, 'index']);
+        Route::get('/contact/{id}', [ContactUsController::class, 'show']);
+        Route::delete('/contact/{id}', [ContactUsController::class, 'destroy']);
+
+        // User Management (Admin only)
+        Route::get('/users', [UserManagementController::class, 'index']);
+        Route::get('/users/{id}', [UserManagementController::class, 'show']);
+        Route::post('/users', [UserManagementController::class, 'store']);
+        Route::put('/users/{id}', [UserManagementController::class, 'update']);
+        Route::delete('/users/{id}', [UserManagementController::class, 'destroy']);
     });
 
     // --- Bisa Semua Role ---
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/profile', function () {
-        return auth()->user();
-    });
+
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::delete('/profile', [ProfileController::class, 'destroy']);
 
     Route::get('/dictionary/letters', [LetterController::class, 'index']);
     Route::get('/dictionary/letters/{id}', [LetterController::class, 'show']);
@@ -88,4 +104,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/quiz/levels/{levelId}/questions/{questionId}/answer', [QuestionController::class, 'checkAnswer']);
     Route::get('/quiz/levels/{levelId}/completion', [QuestionController::class, 'checkCompletion']);
 
+    Route::post('/contact', [ContactUsController::class, 'store']);
 });
