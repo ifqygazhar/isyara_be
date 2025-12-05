@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin Dashboard') - Isyara</title>
+    <title>@yield('title', 'Dashboard Admin') - Isyara</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-100">
@@ -12,40 +12,40 @@
         <!-- Sidebar -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-indigo-700 text-white transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out">
             <div class="p-6">
-                <h1 class="text-2xl font-bold">Isyara Admin</h1>
+                <h1 class="text-2xl font-bold">Admin Isyara</h1>
             </div>
             <nav class="mt-6">
                 <a href="{{ route('admin.dashboard') }}" class="block px-6 py-3 hover:bg-indigo-600 {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600' : '' }}">
                     <i class="fas fa-home mr-2"></i> Dashboard
                 </a>
                 <a href="{{ route('admin.users') }}" class="block px-6 py-3 hover:bg-indigo-600 {{ request()->routeIs('admin.users*') ? 'bg-indigo-600' : '' }}">
-                    <i class="fas fa-users mr-2"></i> Users
+                    <i class="fas fa-users mr-2"></i> Pengguna
                 </a>
                 <a href="{{ route('admin.letters') }}" class="block px-6 py-3 hover:bg-indigo-600 {{ request()->routeIs('admin.letters*') ? 'bg-indigo-600' : '' }}">
-                    <i class="fas fa-font mr-2"></i> Letters
+                    <i class="fas fa-font mr-2"></i> Huruf
                 </a>
                 <a href="{{ route('admin.words') }}" class="block px-6 py-3 hover:bg-indigo-600 {{ request()->routeIs('admin.words*') ? 'bg-indigo-600' : '' }}">
-                    <i class="fas fa-book mr-2"></i> Words
+                    <i class="fas fa-book mr-2"></i> Kata
                 </a>
                 <a href="{{ route('admin.news') }}" class="block px-6 py-3 hover:bg-indigo-600 {{ request()->routeIs('admin.news*') ? 'bg-indigo-600' : '' }}">
-                    <i class="fas fa-newspaper mr-2"></i> News
+                    <i class="fas fa-newspaper mr-2"></i> Berita
                 </a>
                 <a href="{{ route('admin.events') }}" class="block px-6 py-3 hover:bg-indigo-600 {{ request()->routeIs('admin.events*') ? 'bg-indigo-600' : '' }}">
-                    <i class="fas fa-calendar mr-2"></i> Events
+                    <i class="fas fa-calendar mr-2"></i> Acara
                 </a>
                 <a href="{{ route('admin.community') }}" class="block px-6 py-3 hover:bg-indigo-600 {{ request()->routeIs('admin.community*') ? 'bg-indigo-600' : '' }}">
-                    <i class="fas fa-people-group mr-2"></i> Community
+                    <i class="fas fa-people-group mr-2"></i> Komunitas
                 </a>
                 <a href="{{ route('admin.levels') }}" class="block px-6 py-3 hover:bg-indigo-600 {{ request()->routeIs('admin.levels*') ? 'bg-indigo-600' : '' }}">
-                    <i class="fas fa-layer-group mr-2"></i> Quiz Levels
+                    <i class="fas fa-layer-group mr-2"></i> Level Kuis
                 </a>
                 <a href="{{ route('admin.contact') }}" class="block px-6 py-3 hover:bg-indigo-600 {{ request()->routeIs('admin.contact*') ? 'bg-indigo-600' : '' }}">
-                    <i class="fas fa-envelope mr-2"></i> Contact Messages
+                    <i class="fas fa-envelope mr-2"></i> Pesan Kontak
                 </a>
                 <form action="{{ route('admin.logout') }}" method="POST" class="px-6 py-3">
                     @csrf
                     <button type="submit" class="w-full text-left hover:bg-indigo-600 px-0">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        <i class="fas fa-sign-out-alt mr-2"></i> Keluar
                     </button>
                 </form>
             </nav>

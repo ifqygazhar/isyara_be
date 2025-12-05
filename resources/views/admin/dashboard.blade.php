@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Dashboard')
-@section('header', 'Dashboard Overview')
+@section('header', 'Ringkasan Dashboard')
 
 @section('content')
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
@@ -12,7 +12,7 @@
                 <i class="fas fa-users text-white text-2xl"></i>
             </div>
             <div class="ml-4">
-                <p class="text-sm text-gray-600">Total Users</p>
+                <p class="text-sm text-gray-600">Total Pengguna</p>
                 <p class="text-2xl font-semibold text-gray-900">{{ $stats['users'] }}</p>
             </div>
         </div>
@@ -25,7 +25,7 @@
                 <i class="fas fa-font text-white text-2xl"></i>
             </div>
             <div class="ml-4">
-                <p class="text-sm text-gray-600">Letters</p>
+                <p class="text-sm text-gray-600">Huruf</p>
                 <p class="text-2xl font-semibold text-gray-900">{{ $stats['letters'] }}</p>
             </div>
         </div>
@@ -38,7 +38,7 @@
                 <i class="fas fa-book text-white text-2xl"></i>
             </div>
             <div class="ml-4">
-                <p class="text-sm text-gray-600">Words</p>
+                <p class="text-sm text-gray-600">Kata</p>
                 <p class="text-2xl font-semibold text-gray-900">{{ $stats['words'] }}</p>
             </div>
         </div>
@@ -51,7 +51,7 @@
                 <i class="fas fa-layer-group text-white text-2xl"></i>
             </div>
             <div class="ml-4">
-                <p class="text-sm text-gray-600">Quiz Levels</p>
+                <p class="text-sm text-gray-600">Level Kuis</p>
                 <p class="text-2xl font-semibold text-gray-900">{{ $stats['levels'] }}</p>
             </div>
         </div>
@@ -64,7 +64,7 @@
                 <i class="fas fa-newspaper text-white text-2xl"></i>
             </div>
             <div class="ml-4">
-                <p class="text-sm text-gray-600">News</p>
+                <p class="text-sm text-gray-600">Berita</p>
                 <p class="text-2xl font-semibold text-gray-900">{{ $stats['news'] }}</p>
             </div>
         </div>
@@ -77,7 +77,7 @@
                 <i class="fas fa-calendar text-white text-2xl"></i>
             </div>
             <div class="ml-4">
-                <p class="text-sm text-gray-600">Events</p>
+                <p class="text-sm text-gray-600">Acara</p>
                 <p class="text-2xl font-semibold text-gray-900">{{ $stats['events'] }}</p>
             </div>
         </div>
@@ -90,7 +90,7 @@
                 <i class="fas fa-people-group text-white text-2xl"></i>
             </div>
             <div class="ml-4">
-                <p class="text-sm text-gray-600">Communities</p>
+                <p class="text-sm text-gray-600">Komunitas</p>
                 <p class="text-2xl font-semibold text-gray-900">{{ $stats['communities'] }}</p>
             </div>
         </div>
@@ -103,7 +103,7 @@
                 <i class="fas fa-envelope text-white text-2xl"></i>
             </div>
             <div class="ml-4">
-                <p class="text-sm text-gray-600">Contact Messages</p>
+                <p class="text-sm text-gray-600">Pesan Kontak</p>
                 <p class="text-2xl font-semibold text-gray-900">{{ $stats['contacts'] }}</p>
             </div>
         </div>
@@ -115,7 +115,7 @@
     <!-- Recent Users -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold">Recent Users</h3>
+            <h3 class="text-lg font-semibold">Pengguna Terbaru</h3>
         </div>
         <div class="p-6">
             <div class="space-y-4">
@@ -137,7 +137,7 @@
                         <span class="text-xs text-gray-400">{{ $user->created_at->diffForHumans() }}</span>
                     </div>
                 @empty
-                    <p class="text-gray-500 text-center py-4">No recent users</p>
+                    <p class="text-gray-500 text-center py-4">Tidak ada pengguna terbaru</p>
                 @endforelse
             </div>
         </div>
@@ -146,7 +146,7 @@
     <!-- Recent Contact Messages -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold">Recent Contact Messages</h3>
+            <h3 class="text-lg font-semibold">Pesan Kontak Terbaru</h3>
         </div>
         <div class="p-6">
             <div class="space-y-4">
@@ -160,7 +160,7 @@
                         <p class="text-sm text-gray-600 mt-2">{{ Str::limit($contact->message, 100) }}</p>
                     </div>
                 @empty
-                    <p class="text-gray-500 text-center py-4">No recent messages</p>
+                    <p class="text-gray-500 text-center py-4">Tidak ada pesan terbaru</p>
                 @endforelse
             </div>
         </div>
