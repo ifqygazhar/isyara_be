@@ -47,7 +47,7 @@
 </div>
 
 <!-- Level Modal -->
-<div id="levelModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+<div id="levelModal" class="hidden fixed inset-0  bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center p-6 border-b border-gray-200">
             <h2 id="modalTitle" class="text-xl font-semibold text-gray-900">Add Level</h2>
@@ -78,7 +78,7 @@
 </div>
 
 <!-- Questions Modal -->
-<div id="questionsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+<div id="questionsModal" class="hidden fixed inset-0 bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center p-6 border-b border-gray-200">
             <h2 id="questionsModalTitle" class="text-xl font-semibold text-gray-900">Manage Questions</h2>
@@ -103,7 +103,7 @@
 </div>
 
 <!-- Question Form Modal -->
-<div id="questionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
+<div id="questionModal" class="hidden fixed inset-0  bg-opacity-50 z-[60] flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center p-6 border-b border-gray-200">
             <h2 id="questionModalTitle" class="text-xl font-semibold text-gray-900">Add Question</h2>

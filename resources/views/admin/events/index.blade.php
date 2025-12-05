@@ -47,7 +47,7 @@
 </div>
 
 <!-- Modal -->
-<div id="eventModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+<div id="eventModal" class="hidden fixed inset-0  bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center p-6 border-b border-gray-200">
             <h2 id="modalTitle" class="text-xl font-semibold text-gray-900">Add Event</h2>

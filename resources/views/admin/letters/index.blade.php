@@ -45,7 +45,7 @@
 </div>
 
 <!-- Modal -->
-<div id="letterModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+<div id="letterModal" class="hidden fixed inset-0 bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center p-6 border-b">
             <h2 id="modalTitle" class="text-xl font-semibold text-gray-900">Add Letter</h2>
