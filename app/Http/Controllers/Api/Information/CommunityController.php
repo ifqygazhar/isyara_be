@@ -14,10 +14,10 @@ class CommunityController extends Controller
         $data = Community::all();
 
         if ($data->isEmpty()) {
-            return response()->json(['status' => 'fail', 'message' => 'No communities found'], 404);
+            return response()->json(['status' => 'fail', 'message' => 'Tidak ada komunitas ditemukan'], 404);
         }
 
-        return response()->json(['status' => 'success', 'message' => 'Communities retrieved successfully', 'data' => $data], 200);
+        return response()->json(['status' => 'success', 'message' => 'Komunitas berhasil diambil', 'data' => $data], 200);
     }
 
     public function show($id)
@@ -25,18 +25,18 @@ class CommunityController extends Controller
         $item = Community::find($id);
 
         if (! $item) {
-            return response()->json(['status' => 'fail', 'message' => 'Community not found'], 404);
+            return response()->json(['status' => 'fail', 'message' => 'Komunitas tidak ditemukan'], 404);
         }
 
-        return response()->json(['status' => 'success', 'message' => 'Community retrieved successfully', 'data' => $item], 200);
+        return response()->json(['status' => 'success', 'message' => 'Komunitas berhasil diambil', 'data' => $item], 200);
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|min:5',
-            'image' => 'required_without:image_url|file|image|max:2048',
-            'image_url' => 'required_without:image|string|url',
+            'image' => 'nullable|file|image|max:2048',
+            'image_url' => 'required|string|url',
             'description' => 'required|string|min:10',
         ]);
 
@@ -53,7 +53,7 @@ class CommunityController extends Controller
             'description' => $request->input('description'),
         ]);
 
-        return response()->json(['status' => 'success', 'message' => 'New community added successfully', 'data' => $item], 201);
+        return response()->json(['status' => 'success', 'message' => 'Komunitas berhasil ditambahkan', 'data' => $item], 201);
     }
 
     public function update(Request $request, $id)
@@ -61,7 +61,7 @@ class CommunityController extends Controller
         $item = Community::find($id);
 
         if (! $item) {
-            return response()->json(['status' => 'fail', 'message' => 'Community not found'], 404);
+            return response()->json(['status' => 'fail', 'message' => 'Komunitas tidak ditemukan'], 404);
         }
 
         $request->validate([
@@ -86,7 +86,7 @@ class CommunityController extends Controller
             'description' => $request->input('description'),
         ]);
 
-        return response()->json(['status' => 'success', 'message' => 'Community updated successfully', 'data' => $item], 200);
+        return response()->json(['status' => 'success', 'message' => 'Komunitas berhasil diperbarui', 'data' => $item], 200);
     }
 
     public function destroy($id)
@@ -94,7 +94,7 @@ class CommunityController extends Controller
         $item = Community::find($id);
 
         if (! $item) {
-            return response()->json(['status' => 'fail', 'message' => 'Community not found'], 404);
+            return response()->json(['status' => 'fail', 'message' => 'Komunitas tidak ditemukan'], 404);
         }
 
         $imageUrl = $item->image_url;
@@ -109,6 +109,6 @@ class CommunityController extends Controller
 
         $item->delete();
 
-        return response()->json(['status' => 'success', 'message' => 'Community deleted successfully'], 200);
+        return response()->json(['status' => 'success', 'message' => 'Komunitas berhasil dihapus'], 200);
     }
 }

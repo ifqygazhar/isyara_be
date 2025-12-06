@@ -8,39 +8,71 @@ class NewsManager extends CrudManager {
             formId: "newsForm",
         });
 
-        document.getElementById("addNewsBtn")?.addEventListener("click", () => {
-            this.openModal("Add News");
-        });
-
-        document.getElementById("cancelBtn")?.addEventListener("click", () => {
-            this.closeModal();
-        });
-
+        this.isSubmitting = false; // Flag untuk mencegah double submit
         this.setupEventListeners();
         this.loadData();
     }
 
     setupEventListeners() {
-        let searchTimeout;
-        document
-            .getElementById("searchInput")
-            ?.addEventListener("input", (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    this.filterData(e.target.value);
-                }, 300);
+        // Add button
+        const addBtn = document.getElementById("addNewsBtn");
+        if (addBtn) {
+            addBtn.addEventListener("click", () => {
+                this.openModal("Tambah Berita");
             });
+        }
 
-        document.querySelectorAll(".close, #cancelBtn").forEach((btn) => {
+        // Cancel button
+        const cancelBtn = document.getElementById("cancelBtn");
+        if (cancelBtn) {
+            cancelBtn.addEventListener("click", () => {
+                this.closeModal();
+            });
+        }
+
+        // Close buttons
+        document.querySelectorAll(".close").forEach((btn) => {
             btn.addEventListener("click", () => {
                 this.closeModal();
             });
         });
 
-        document.getElementById("newsForm")?.addEventListener("submit", (e) => {
-            e.preventDefault();
-            this.handleSubmit(e);
-        });
+        // Search functionality
+        let searchTimeout;
+        const searchInput = document.getElementById("searchInput");
+        if (searchInput) {
+            searchInput.addEventListener("input", (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.filterData(e.target.value);
+                }, 300);
+            });
+        }
+
+        // Form submission - PASTIKAN HANYA 1 EVENT LISTENER
+        const form = document.getElementById("newsForm");
+        if (form) {
+            // Remove existing listeners (jika ada)
+            const newForm = form.cloneNode(true);
+            form.parentNode.replaceChild(newForm, form);
+
+            // Add single event listener
+            newForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                e.stopPropagation(); // Stop event bubbling
+                this.handleSubmit(e);
+            });
+        }
+
+        // Modal backdrop click
+        const modal = document.getElementById("newsModal");
+        if (modal) {
+            modal.addEventListener("click", (e) => {
+                if (e.target === modal) {
+                    this.closeModal();
+                }
+            });
+        }
     }
 
     async loadData() {
@@ -50,7 +82,7 @@ class NewsManager extends CrudManager {
             this.renderData(this.data);
         } catch (error) {
             console.error("Error loading news:", error);
-            this.renderEmptyState("Error loading news");
+            this.renderEmptyState("Gagal memuat data berita");
         }
     }
 
@@ -59,7 +91,7 @@ class NewsManager extends CrudManager {
         const cardContainer = document.getElementById("newsCardContainer");
 
         if (!news || news.length === 0) {
-            this.renderEmptyState("No news found");
+            this.renderEmptyState("Tidak ada berita ditemukan");
             return;
         }
 
@@ -89,10 +121,13 @@ class NewsManager extends CrudManager {
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${this.truncate(item.description || "No description", 60)}
+                    ${this.truncate(
+                        item.description || "Tidak ada deskripsi",
+                        60
+                    )}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${new Date(item.created_at).toLocaleDateString("en-US", {
+                    ${new Date(item.created_at).toLocaleDateString("id-ID", {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
@@ -101,15 +136,15 @@ class NewsManager extends CrudManager {
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div class="flex items-center gap-2">
                         <button 
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-200 transition-colors" 
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-200 transition-colors cursor-pointer" 
                             onclick="newsManager.editItem(${item.id})"
-                            title="Edit News">
+                            title="Edit Berita">
                             <i class="fas fa-edit"></i>
                         </button>
                         <button 
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors" 
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors cursor-pointer" 
                             onclick="newsManager.deleteItem(${item.id})"
-                            title="Delete News">
+                            title="Hapus Berita">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -145,12 +180,12 @@ class NewsManager extends CrudManager {
                                 }</span>
                             </div>
                             <p class="text-sm text-gray-500 mt-1 line-clamp-2">${
-                                item.description || "No description"
+                                item.description || "Tidak ada deskripsi"
                             }</p>
                             <p class="text-xs text-gray-400 mt-2">
-                                Created: ${new Date(
+                                Dibuat: ${new Date(
                                     item.created_at
-                                ).toLocaleDateString("en-US", {
+                                ).toLocaleDateString("id-ID", {
                                     year: "numeric",
                                     month: "short",
                                     day: "numeric",
@@ -159,7 +194,7 @@ class NewsManager extends CrudManager {
                             <div class="flex items-center gap-2 mt-3">
                                 <button 
                                     onclick="newsManager.editItem(${item.id})" 
-                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-blue-600 hover:bg-blue-700 transition">
+                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-blue-600 hover:bg-blue-700 transition cursor-pointer">
                                     <i class="fas fa-edit mr-1"></i>
                                     Edit
                                 </button>
@@ -167,9 +202,9 @@ class NewsManager extends CrudManager {
                                     onclick="newsManager.deleteItem(${
                                         item.id
                                     })" 
-                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-red-600 hover:bg-red-700 transition">
+                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-red-600 hover:bg-red-700 transition cursor-pointer">
                                     <i class="fas fa-trash mr-1"></i>
-                                    Delete
+                                    Hapus
                                 </button>
                             </div>
                         </div>
@@ -181,7 +216,7 @@ class NewsManager extends CrudManager {
         }
     }
 
-    renderEmptyState(message = "No news found") {
+    renderEmptyState(message = "Tidak ada berita ditemukan") {
         const tableBody = document.getElementById("newsTableBody");
         const cardContainer = document.getElementById("newsCardContainer");
 
@@ -227,41 +262,100 @@ class NewsManager extends CrudManager {
         document.getElementById("imageUrl").value = item.image_url || "";
         document.getElementById("description").value = item.description || "";
 
-        this.openModal("Edit News");
+        this.openModal("Edit Berita");
     }
 
     async handleSubmit(e) {
+        // Prevent double submission
+        if (this.isSubmitting) {
+            console.log("Sudah dalam proses submit, melewati...");
+            return;
+        }
+
+        this.isSubmitting = true;
+
         const newsId = document.getElementById("newsId").value;
+        const title = document.getElementById("title").value.trim();
+        const imageUrl = document.getElementById("imageUrl").value.trim();
+        const description = document.getElementById("description").value.trim();
+
+        // Disable submit button
+        const submitBtn = document.getElementById("saveBtn");
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML =
+                '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+        }
+
+        // Validasi client-side
+        if (!title) {
+            this.showToast("Judul wajib diisi", "error");
+            this.isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan";
+            }
+            return;
+        }
+
+        if (!imageUrl) {
+            this.showToast("URL Gambar wajib diisi", "error");
+            this.isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan";
+            }
+            return;
+        }
+
+        if (!description) {
+            this.showToast("Deskripsi wajib diisi", "error");
+            this.isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan";
+            }
+            return;
+        }
+
         const data = {
-            title: document.getElementById("title").value,
-            image_url: document.getElementById("imageUrl").value || null,
-            description: document.getElementById("description").value,
+            title: title,
+            image_url: imageUrl,
+            description: description,
         };
 
         try {
             if (newsId) {
                 await this.api.put(`${this.endpoint}/${newsId}`, data);
-                this.showToast("News updated successfully", "success");
+                this.showToast("Berita berhasil diperbarui", "success");
             } else {
                 await this.api.post(this.endpoint, data);
-                this.showToast("News created successfully", "success");
+                this.showToast("Berita berhasil ditambahkan", "success");
             }
             this.closeModal();
-            this.loadData();
+            await this.loadData();
         } catch (error) {
-            this.showToast("Failed to save news: " + error.message, "error");
+            console.error("Submit error:", error);
+            this.showToast("Gagal menyimpan berita: " + error.message, "error");
+        } finally {
+            // Re-enable submit button
+            this.isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan";
+            }
         }
     }
 
     async deleteItem(id) {
-        if (!confirm("Are you sure you want to delete this news?")) return;
+        if (!confirm("Apakah Anda yakin ingin menghapus berita ini?")) return;
 
         try {
             await this.api.delete(`${this.endpoint}/${id}`);
-            this.showToast("News deleted successfully", "success");
+            this.showToast("Berita berhasil dihapus", "success");
             this.loadData();
         } catch (error) {
-            this.showToast("Failed to delete news: " + error.message, "error");
+            this.showToast("Gagal menghapus berita: " + error.message, "error");
         }
     }
 
@@ -274,7 +368,7 @@ class NewsManager extends CrudManager {
         const modal = document.getElementById("newsModal");
         document.getElementById("modalTitle").textContent = title;
 
-        if (title === "Add News") {
+        if (title === "Tambah Berita") {
             document.getElementById("newsForm").reset();
             document.getElementById("newsId").value = "";
         }
@@ -287,11 +381,12 @@ class NewsManager extends CrudManager {
         const modal = document.getElementById("newsModal");
         modal.classList.add("hidden");
         document.body.style.overflow = "";
+        this.isSubmitting = false; // Reset flag saat modal ditutup
     }
 
     showToast(message, type = "info") {
         const toast = document.createElement("div");
-        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 shadow-lg ${
             type === "success"
                 ? "bg-green-500"
                 : type === "error"

@@ -8,39 +8,71 @@ class WordsManager extends CrudManager {
             formId: "wordForm",
         });
 
-        document.getElementById("addWordBtn")?.addEventListener("click", () => {
-            this.openModal("Add Word");
-        });
-
-        document.getElementById("cancelBtn")?.addEventListener("click", () => {
-            this.closeModal();
-        });
-
+        this.isSubmitting = false; // Flag untuk mencegah double submit
         this.setupEventListeners();
         this.loadData();
     }
 
     setupEventListeners() {
-        let searchTimeout;
-        document
-            .getElementById("searchInput")
-            ?.addEventListener("input", (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    this.filterData(e.target.value);
-                }, 300);
+        // Add button
+        const addBtn = document.getElementById("addWordBtn");
+        if (addBtn) {
+            addBtn.addEventListener("click", () => {
+                this.openModal("Tambah Kata");
             });
+        }
 
-        document.querySelectorAll(".close, #cancelBtn").forEach((btn) => {
+        // Cancel button
+        const cancelBtn = document.getElementById("cancelBtn");
+        if (cancelBtn) {
+            cancelBtn.addEventListener("click", () => {
+                this.closeModal();
+            });
+        }
+
+        // Close buttons
+        document.querySelectorAll(".close").forEach((btn) => {
             btn.addEventListener("click", () => {
                 this.closeModal();
             });
         });
 
-        document.getElementById("wordForm")?.addEventListener("submit", (e) => {
-            e.preventDefault();
-            this.handleSubmit(e);
-        });
+        // Search functionality
+        let searchTimeout;
+        const searchInput = document.getElementById("searchInput");
+        if (searchInput) {
+            searchInput.addEventListener("input", (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.filterData(e.target.value);
+                }, 300);
+            });
+        }
+
+        // Form submission - PASTIKAN HANYA 1 EVENT LISTENER
+        const form = document.getElementById("wordForm");
+        if (form) {
+            // Remove existing listeners (jika ada)
+            const newForm = form.cloneNode(true);
+            form.parentNode.replaceChild(newForm, form);
+
+            // Add single event listener
+            newForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                e.stopPropagation(); // Stop event bubbling
+                this.handleSubmit(e);
+            });
+        }
+
+        // Modal backdrop click
+        const modal = document.getElementById("wordModal");
+        if (modal) {
+            modal.addEventListener("click", (e) => {
+                if (e.target === modal) {
+                    this.closeModal();
+                }
+            });
+        }
     }
 
     async loadData() {
@@ -50,7 +82,7 @@ class WordsManager extends CrudManager {
             this.renderData(this.data);
         } catch (error) {
             console.error("Error loading words:", error);
-            this.renderEmptyState("Error loading words");
+            this.renderEmptyState("Gagal memuat data kata");
         }
     }
 
@@ -59,7 +91,7 @@ class WordsManager extends CrudManager {
         const cardContainer = document.getElementById("wordsCardContainer");
 
         if (!words || words.length === 0) {
-            this.renderEmptyState("No words found");
+            this.renderEmptyState("Tidak ada kata ditemukan");
             return;
         }
 
@@ -92,16 +124,16 @@ class WordsManager extends CrudManager {
                         word.video_url
                             ? `<div class="flex items-center gap-2">
                             <i class="fas fa-video text-green-600"></i>
-                            <span class="text-sm text-gray-600">Available</span>
+                            <span class="text-sm text-gray-600">Tersedia</span>
                         </div>`
                             : `<div class="flex items-center gap-2">
                             <i class="fas fa-video text-gray-400"></i>
-                            <span class="text-sm text-gray-400">None</span>
+                            <span class="text-sm text-gray-400">Tidak ada</span>
                         </div>`
                     }
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${new Date(word.created_at).toLocaleDateString("en-US", {
+                    ${new Date(word.created_at).toLocaleDateString("id-ID", {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
@@ -110,15 +142,15 @@ class WordsManager extends CrudManager {
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div class="flex items-center gap-2">
                         <button 
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-200 transition-colors" 
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-200 transition-colors cursor-pointer" 
                             onclick="wordsManager.editItem(${word.id})"
-                            title="Edit Word">
+                            title="Edit Kata">
                             <i class="fas fa-edit"></i>
                         </button>
                         <button 
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors" 
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors cursor-pointer" 
                             onclick="wordsManager.deleteItem(${word.id})"
-                            title="Delete Word">
+                            title="Hapus Kata">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -161,14 +193,16 @@ class WordsManager extends CrudManager {
                                 }">
                                     <i class="fas fa-video"></i>
                                     <span>${
-                                        word.video_url ? "Video" : "No Video"
+                                        word.video_url
+                                            ? "Video"
+                                            : "Tidak ada video"
                                     }</span>
                                 </div>
                             </div>
                             <p class="text-xs text-gray-400 mt-2">
-                                Created: ${new Date(
+                                Dibuat: ${new Date(
                                     word.created_at
-                                ).toLocaleDateString("en-US", {
+                                ).toLocaleDateString("id-ID", {
                                     year: "numeric",
                                     month: "short",
                                     day: "numeric",
@@ -187,7 +221,7 @@ class WordsManager extends CrudManager {
                                     })" 
                                     class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-red-600 hover:bg-red-700 transition">
                                     <i class="fas fa-trash mr-1"></i>
-                                    Delete
+                                    Hapus
                                 </button>
                             </div>
                         </div>
@@ -199,7 +233,7 @@ class WordsManager extends CrudManager {
         }
     }
 
-    renderEmptyState(message = "No words found") {
+    renderEmptyState(message = "Tidak ada kata ditemukan") {
         const tableBody = document.getElementById("wordsTableBody");
         const cardContainer = document.getElementById("wordsCardContainer");
 
@@ -239,43 +273,98 @@ class WordsManager extends CrudManager {
         document.getElementById("wordId").value = item.id;
         document.getElementById("kata").value = item.kata;
         document.getElementById("imageUrl").value = item.image_url || "";
-        document.getElementById("videoUrl").value = item.video_url || "";
 
-        this.openModal("Edit Word");
+        this.openModal("Edit Kata");
     }
 
     async handleSubmit(e) {
+        // Prevent double submission
+        if (this.isSubmitting) {
+            console.log("Already submitting, skipping...");
+            return;
+        }
+
+        this.isSubmitting = true;
+
         const wordId = document.getElementById("wordId").value;
+        const kata = document.getElementById("kata").value.trim();
+        const imageUrl = document.getElementById("imageUrl").value.trim();
+
+        // Disable submit button
+        const submitBtn = document.getElementById("saveBtn");
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML =
+                '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+        }
+
+        // Validasi client-side
+        if (!kata) {
+            this.showToast("Kata wajib diisi", "error");
+            this.isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan";
+            }
+            return;
+        }
+
+        if (!imageUrl) {
+            this.showToast("URL Gambar wajib diisi", "error");
+            this.isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan";
+            }
+            return;
+        }
+
         const data = {
-            kata: document.getElementById("kata").value,
-            image_url: document.getElementById("imageUrl").value || null,
-            video_url: document.getElementById("videoUrl").value || null,
+            kata: kata,
+            image_url: imageUrl,
         };
 
         try {
             if (wordId) {
                 await this.api.put(`${this.endpoint}/${wordId}`, data);
-                this.showToast("Word updated successfully", "success");
+                this.showToast("Kata berhasil diperbarui", "success");
             } else {
                 await this.api.post(this.endpoint, data);
-                this.showToast("Word created successfully", "success");
+                this.showToast("Kata berhasil ditambahkan", "success");
             }
             this.closeModal();
-            this.loadData();
+            await this.loadData();
         } catch (error) {
-            this.showToast("Failed to save word: " + error.message, "error");
+            console.error("Submit error:", error);
+
+            // Handle validation errors
+            if (error.message.includes("already been taken")) {
+                this.showToast(`Kata "${kata}" sudah ada`, "error");
+            } else {
+                this.showToast(
+                    "Gagal menyimpan kata: " + error.message,
+                    "error"
+                );
+            }
+        } finally {
+            // Re-enable submit button
+            this.isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan";
+            }
         }
     }
 
     async deleteItem(id) {
-        if (!confirm("Are you sure you want to delete this word?")) return;
+        if (!confirm("Apakah Anda yakin ingin menghapus kata ini?")) return;
 
         try {
             await this.api.delete(`${this.endpoint}/${id}`);
-            this.showToast("Word deleted successfully", "success");
+            this.showToast("Kata berhasil dihapus", "success");
             this.loadData();
         } catch (error) {
-            this.showToast("Failed to delete word: " + error.message, "error");
+            this.showToast("Gagal menghapus kata: " + error.message, "error");
         }
     }
 
@@ -283,7 +372,7 @@ class WordsManager extends CrudManager {
         const modal = document.getElementById("wordModal");
         document.getElementById("modalTitle").textContent = title;
 
-        if (title === "Add Word") {
+        if (title === "Tambah Kata") {
             document.getElementById("wordForm").reset();
             document.getElementById("wordId").value = "";
         }
@@ -296,11 +385,12 @@ class WordsManager extends CrudManager {
         const modal = document.getElementById("wordModal");
         modal.classList.add("hidden");
         document.body.style.overflow = "";
+        this.isSubmitting = false; // Reset flag
     }
 
     showToast(message, type = "info") {
         const toast = document.createElement("div");
-        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 shadow-lg ${
             type === "success"
                 ? "bg-green-500"
                 : type === "error"

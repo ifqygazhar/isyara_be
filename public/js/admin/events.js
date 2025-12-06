@@ -8,43 +8,71 @@ class EventsManager extends CrudManager {
             formId: "eventForm",
         });
 
-        document
-            .getElementById("addEventBtn")
-            ?.addEventListener("click", () => {
-                this.openModal("Add Event");
-            });
-
-        document.getElementById("cancelBtn")?.addEventListener("click", () => {
-            this.closeModal();
-        });
-
+        this.isSubmitting = false; // Flag untuk mencegah double submit
         this.setupEventListeners();
         this.loadData();
     }
 
     setupEventListeners() {
-        let searchTimeout;
-        document
-            .getElementById("searchInput")
-            ?.addEventListener("input", (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    this.filterData(e.target.value);
-                }, 300);
+        // Add button
+        const addBtn = document.getElementById("addEventBtn");
+        if (addBtn) {
+            addBtn.addEventListener("click", () => {
+                this.openModal("Tambah Acara");
             });
+        }
 
-        document.querySelectorAll(".close, #cancelBtn").forEach((btn) => {
+        // Cancel button
+        const cancelBtn = document.getElementById("cancelBtn");
+        if (cancelBtn) {
+            cancelBtn.addEventListener("click", () => {
+                this.closeModal();
+            });
+        }
+
+        // Close buttons
+        document.querySelectorAll(".close").forEach((btn) => {
             btn.addEventListener("click", () => {
                 this.closeModal();
             });
         });
 
-        document
-            .getElementById("eventForm")
-            ?.addEventListener("submit", (e) => {
+        // Search functionality
+        let searchTimeout;
+        const searchInput = document.getElementById("searchInput");
+        if (searchInput) {
+            searchInput.addEventListener("input", (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.filterData(e.target.value);
+                }, 300);
+            });
+        }
+
+        // Form submission - PASTIKAN HANYA 1 EVENT LISTENER
+        const form = document.getElementById("eventForm");
+        if (form) {
+            // Remove existing listeners (jika ada)
+            const newForm = form.cloneNode(true);
+            form.parentNode.replaceChild(newForm, form);
+
+            // Add single event listener
+            newForm.addEventListener("submit", (e) => {
                 e.preventDefault();
+                e.stopPropagation(); // Stop event bubbling
                 this.handleSubmit(e);
             });
+        }
+
+        // Modal backdrop click
+        const modal = document.getElementById("eventModal");
+        if (modal) {
+            modal.addEventListener("click", (e) => {
+                if (e.target === modal) {
+                    this.closeModal();
+                }
+            });
+        }
     }
 
     async loadData() {
@@ -54,16 +82,15 @@ class EventsManager extends CrudManager {
             this.renderData(this.data);
         } catch (error) {
             console.error("Error loading events:", error);
-            this.renderEmptyState("Error loading events");
+            this.renderEmptyState("Gagal memuat data acara");
         }
     }
 
     renderData(events) {
         const tableBody = document.getElementById("eventsTableBody");
-        const cardContainer = document.getElementById("eventsCardContainer");
 
         if (!events || events.length === 0) {
-            this.renderEmptyState("No events found");
+            this.renderEmptyState("Tidak ada acara ditemukan");
             return;
         }
 
@@ -72,64 +99,55 @@ class EventsManager extends CrudManager {
             .map(
                 (item) => `
             <tr class="hover:bg-gray-50 transition">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${
                     item.id
                 }</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 h-10 w-10 mr-3">
-                            ${
-                                item.image_url
-                                    ? `<img src="${item.image_url}" alt="${
-                                          item.judul_event || item.title
-                                      }" class="w-10 h-10 object-cover rounded-lg">`
-                                    : `<div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-calendar-alt text-gray-400"></i>
-                                </div>`
-                            }
-                        </div>
-                        <div class="text-sm font-medium text-gray-900">${this.truncate(
-                            item.judul_event || item.title,
-                            40
-                        )}</div>
-                    </div>
+                <td class="px-4 py-3">
+                    <div class="text-sm font-medium text-gray-900">${this.truncate(
+                        item.judul_event || item.title,
+                        50
+                    )}</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${item.lokasi || item.location || "TBD"}
+                <td class="px-4 py-3 whitespace-nowrap hidden md:table-cell">
+                    ${
+                        item.image_url
+                            ? `<img src="${item.image_url}" alt="${
+                                  item.judul_event || item.title
+                              }" class="w-12 h-12 object-cover rounded-lg">`
+                            : `<div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar-alt text-gray-400"></i>
+                            </div>`
+                    }
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
                     ${
                         item.tanggal_mulai
                             ? new Date(item.tanggal_mulai).toLocaleDateString(
-                                  "en-US",
+                                  "id-ID",
                                   {
                                       year: "numeric",
                                       month: "short",
                                       day: "numeric",
                                   }
                               )
-                            : "TBD"
+                            : "-"
                     }
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${new Date(item.created_at).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                    })}
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
+                    ${item.lokasi || item.location || "-"}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
                     <div class="flex items-center gap-2">
                         <button 
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-200 transition-colors" 
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-200 transition-colors cursor-pointer" 
                             onclick="eventsManager.editItem(${item.id})"
-                            title="Edit Event">
+                            title="Edit Acara">
                             <i class="fas fa-edit"></i>
                         </button>
                         <button 
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors" 
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors cursor-pointer" 
                             onclick="eventsManager.deleteItem(${item.id})"
-                            title="Delete Event">
+                            title="Hapus Acara">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -138,116 +156,24 @@ class EventsManager extends CrudManager {
         `
             )
             .join("");
-
-        // Mobile cards
-        if (cardContainer) {
-            cardContainer.innerHTML = events
-                .map(
-                    (item) => `
-                <div class="border-b border-gray-200 p-4 hover:bg-gray-50 transition">
-                    <div class="flex items-start space-x-4">
-                        <div class="flex-shrink-0">
-                            ${
-                                item.image_url
-                                    ? `<img src="${item.image_url}" alt="${
-                                          item.judul_event || item.title
-                                      }" class="w-16 h-16 object-cover rounded-lg">`
-                                    : `<div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-calendar-alt text-2xl text-gray-400"></i>
-                                </div>`
-                            }
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between">
-                                <p class="text-lg font-semibold text-gray-900 truncate">${
-                                    item.judul_event || item.title
-                                }</p>
-                                <span class="text-xs text-gray-500">ID: ${
-                                    item.id
-                                }</span>
-                            </div>
-                            <div class="mt-1 flex items-center gap-4">
-                                <div class="flex items-center gap-1 text-sm text-gray-600">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>${
-                                        item.lokasi || item.location || "TBD"
-                                    }</span>
-                                </div>
-                                <div class="flex items-center gap-1 text-sm text-gray-600">
-                                    <i class="fas fa-calendar"></i>
-                                    <span>${
-                                        item.tanggal_mulai
-                                            ? new Date(
-                                                  item.tanggal_mulai
-                                              ).toLocaleDateString()
-                                            : "TBD"
-                                    }</span>
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">${
-                                item.deskripsi ||
-                                item.description ||
-                                "No description"
-                            }</p>
-                            <p class="text-xs text-gray-400 mt-2">
-                                Created: ${new Date(
-                                    item.created_at
-                                ).toLocaleDateString("en-US", {
-                                    year: "numeric",
-                                    month: "short",
-                                    day: "numeric",
-                                })}
-                            </p>
-                            <div class="flex items-center gap-2 mt-3">
-                                <button 
-                                    onclick="eventsManager.editItem(${
-                                        item.id
-                                    })" 
-                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-blue-600 hover:bg-blue-700 transition">
-                                    <i class="fas fa-edit mr-1"></i>
-                                    Edit
-                                </button>
-                                <button 
-                                    onclick="eventsManager.deleteItem(${
-                                        item.id
-                                    })" 
-                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-red-600 hover:bg-red-700 transition">
-                                    <i class="fas fa-trash mr-1"></i>
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-                )
-                .join("");
-        }
     }
 
-    renderEmptyState(message = "No events found") {
+    renderEmptyState(message = "Tidak ada acara ditemukan") {
         const tableBody = document.getElementById("eventsTableBody");
-        const cardContainer = document.getElementById("eventsCardContainer");
 
         const emptyStateHtml = `
-            <div class="text-center text-gray-500 py-8">
-                <i class="fas fa-calendar-alt text-4xl mb-4 text-gray-300"></i>
-                <p>${message}</p>
-            </div>
+            <tr>
+                <td colspan="6" class="px-6 py-8 text-center">
+                    <div class="text-gray-500">
+                        <i class="fas fa-calendar-alt text-4xl mb-4 text-gray-300"></i>
+                        <p>${message}</p>
+                    </div>
+                </td>
+            </tr>
         `;
 
         if (tableBody) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="px-6 py-4">
-                        ${emptyStateHtml}
-                    </td>
-                </tr>
-            `;
-        }
-
-        if (cardContainer) {
-            cardContainer.innerHTML = emptyStateHtml;
+            tableBody.innerHTML = emptyStateHtml;
         }
     }
 
@@ -272,60 +198,113 @@ class EventsManager extends CrudManager {
         if (!item) return;
 
         document.getElementById("eventId").value = item.id;
-        document.getElementById("judulEvent").value =
-            item.judul_event || item.title;
-        document.getElementById("deskripsi").value =
+        document.getElementById("title").value = item.judul_event || item.title;
+        document.getElementById("imageUrl").value = item.image_url || "";
+        document.getElementById("description").value =
             item.deskripsi || item.description || "";
-        document.getElementById("tanggalMulai").value = item.tanggal_mulai
+        document.getElementById("date").value = item.tanggal_mulai
             ? item.tanggal_mulai.split(" ")[0]
             : "";
-        document.getElementById("tanggalSelesai").value = item.tanggal_selesai
-            ? item.tanggal_selesai.split(" ")[0]
-            : "";
-        document.getElementById("lokasi").value =
+        document.getElementById("location").value =
             item.lokasi || item.location || "";
-        document.getElementById("penyelenggara").value =
-            item.penyelenggara || "";
 
-        this.openModal("Edit Event");
+        this.openModal("Edit Acara");
     }
 
     async handleSubmit(e) {
+        // Prevent double submission
+        if (this.isSubmitting) {
+            console.log("Already submitting, skipping...");
+            return;
+        }
+
+        this.isSubmitting = true;
+
         const eventId = document.getElementById("eventId").value;
+        const title = document.getElementById("title").value.trim();
+        const imageUrl = document.getElementById("imageUrl").value.trim();
+        const description = document.getElementById("description").value.trim();
+        const date = document.getElementById("date").value;
+        const location = document.getElementById("location").value.trim();
+
+        // Disable submit button
+        const submitBtn = document.getElementById("saveBtn");
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML =
+                '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+        }
+
+        // Validasi client-side
+        if (!title) {
+            this.showToast("Judul wajib diisi", "error");
+            this.isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan";
+            }
+            return;
+        }
+
+        if (!imageUrl) {
+            this.showToast("URL Gambar wajib diisi", "error");
+            this.isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan";
+            }
+            return;
+        }
+
+        if (!description) {
+            this.showToast("Deskripsi wajib diisi", "error");
+            this.isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan";
+            }
+            return;
+        }
+
+        // Kirim data sesuai dengan yang diharapkan controller
         const data = {
-            judul_event: document.getElementById("judulEvent").value,
-            deskripsi: document.getElementById("deskripsi").value,
-            tanggal_mulai: document.getElementById("tanggalMulai").value,
-            tanggal_selesai:
-                document.getElementById("tanggalSelesai").value || null,
-            lokasi: document.getElementById("lokasi").value,
-            penyelenggara: document.getElementById("penyelenggara").value,
+            title: title, // Controller expects 'title'
+            image_url: imageUrl, // Controller expects 'image_url'
+            description: description, // Controller expects 'description'
         };
 
         try {
             if (eventId) {
                 await this.api.put(`${this.endpoint}/${eventId}`, data);
-                this.showToast("Event updated successfully", "success");
+                this.showToast("Acara berhasil diperbarui", "success");
             } else {
                 await this.api.post(this.endpoint, data);
-                this.showToast("Event created successfully", "success");
+                this.showToast("Acara berhasil ditambahkan", "success");
             }
             this.closeModal();
-            this.loadData();
+            await this.loadData();
         } catch (error) {
-            this.showToast("Failed to save event: " + error.message, "error");
+            console.error("Submit error:", error);
+            this.showToast("Gagal menyimpan acara: " + error.message, "error");
+        } finally {
+            // Re-enable submit button
+            this.isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan";
+            }
         }
     }
 
     async deleteItem(id) {
-        if (!confirm("Are you sure you want to delete this event?")) return;
+        if (!confirm("Apakah Anda yakin ingin menghapus acara ini?")) return;
 
         try {
             await this.api.delete(`${this.endpoint}/${id}`);
-            this.showToast("Event deleted successfully", "success");
+            this.showToast("Acara berhasil dihapus", "success");
             this.loadData();
         } catch (error) {
-            this.showToast("Failed to delete event: " + error.message, "error");
+            this.showToast("Gagal menghapus acara: " + error.message, "error");
         }
     }
 
@@ -338,7 +317,7 @@ class EventsManager extends CrudManager {
         const modal = document.getElementById("eventModal");
         document.getElementById("modalTitle").textContent = title;
 
-        if (title === "Add Event") {
+        if (title === "Tambah Acara") {
             document.getElementById("eventForm").reset();
             document.getElementById("eventId").value = "";
         }
@@ -351,11 +330,12 @@ class EventsManager extends CrudManager {
         const modal = document.getElementById("eventModal");
         modal.classList.add("hidden");
         document.body.style.overflow = "";
+        this.isSubmitting = false; // Reset flag
     }
 
     showToast(message, type = "info") {
         const toast = document.createElement("div");
-        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 shadow-lg ${
             type === "success"
                 ? "bg-green-500"
                 : type === "error"
