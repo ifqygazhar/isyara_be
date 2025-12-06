@@ -15,7 +15,7 @@ class UsersManager extends CrudManager {
     setupEventListeners() {
         // Add button
         document.getElementById("addUserBtn")?.addEventListener("click", () => {
-            this.openModal("Add User");
+            this.openModal("Tambah Pengguna");
             document.getElementById("passwordHint").style.display = "none";
         });
 
@@ -93,13 +93,13 @@ class UsersManager extends CrudManager {
                         <button 
                             class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-200 transition-colors cursor-pointer" 
                             onclick="usersManager.editItem(${item.id})"
-                            title="Edit User">
+                            title="Edit Pengguna">
                             <i class="fas fa-edit"></i>
                         </button>
                         <button 
                             class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors cursor-pointer" 
                             onclick="usersManager.deleteItem(${item.id})"
-                            title="Delete User">
+                            title="Hapus Pengguna">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -120,7 +120,7 @@ class UsersManager extends CrudManager {
         document.getElementById("password").value = "";
         document.getElementById("passwordHint").style.display = "inline";
 
-        this.openModal("Edit User");
+        this.openModal("Edit Pengguna");
     }
 
     openModal(title) {
@@ -131,12 +131,14 @@ class UsersManager extends CrudManager {
             modalTitle.textContent = title;
         }
 
-        if (title === "Add User") {
+        if (title === "Tambah Pengguna") {
             document.getElementById("userForm").reset();
             document.getElementById("userId").value = "";
             document
                 .getElementById("password")
                 .setAttribute("required", "required");
+        } else {
+            document.getElementById("password").removeAttribute("required");
         }
 
         if (modal) {
@@ -170,36 +172,42 @@ class UsersManager extends CrudManager {
         try {
             if (userId) {
                 await this.api.put(`${this.endpoint}/${userId}`, data);
-                utils.showToast("User updated successfully");
+                utils.showToast("Pengguna berhasil diperbarui");
             } else {
                 if (!password) {
                     utils.showToast(
-                        "Password is required for new user",
+                        "Pengguna baru harus memiliki kata sandi",
                         "error"
                     );
                     return;
                 }
                 data.password = password;
                 await this.api.post(this.endpoint, data);
-                utils.showToast("User created successfully");
+                utils.showToast("Pengguna berhasil dibuat");
             }
             this.closeModal();
             this.loadData();
         } catch (error) {
-            utils.showToast("Failed to save user: " + error.message, "error");
+            utils.showToast(
+                "Gagal menyimpan pengguna: " + error.message,
+                "error"
+            );
         }
     }
 
     async deleteItem(id) {
-        if (!utils.confirm("Are you sure you want to delete this user?"))
+        if (!utils.confirm("Apa anda yakin ingin menghapus pengguna ini?"))
             return;
 
         try {
             await this.api.delete(`${this.endpoint}/${id}`);
-            utils.showToast("User deleted successfully");
+            utils.showToast("Pengguna berhasil dihapus");
             this.loadData();
         } catch (error) {
-            utils.showToast("Failed to delete user: " + error.message, "error");
+            utils.showToast(
+                "Gagal menghapus pengguna: " + error.message,
+                "error"
+            );
         }
     }
 }
