@@ -5,6 +5,7 @@
 @section('content')
 <div class="mb-6">
     <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Pesan Kontak</h1>
+    <p class="text-sm text-gray-600 mt-1">Kelola pesan dari pengguna</p>
 </div>
 
 <div class="bg-white rounded-lg shadow">
@@ -18,8 +19,8 @@
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Email</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Subjek</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Dibuat Tanggal</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Pesan</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Tanggal</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 </tr>
             </thead>
@@ -51,15 +52,11 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Nama</label>
-                    <p id="detailName" class="text-gray-900"></p>
+                    <p id="detailName" class="text-gray-900 font-medium"></p>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Email</label>
                     <p id="detailEmail" class="text-gray-900"></p>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Subjek</label>
-                    <p id="detailSubject" class="text-gray-900"></p>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Pesan</label>

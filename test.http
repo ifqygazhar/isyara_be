@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://127.0.0.1:8000/api
-@token = 4|gUbVVr9EmuVP33KGoArp8ZMU8dNSS9FUvDtAtkiOdd1751df
+@token = 9|1np1sWl10UFxwzehqlYyrCwV45bziS3IjiYWA00A51a4c385
 
 ################################################################################
 # AUTH ENDPOINTS
@@ -481,16 +481,17 @@ Authorization: Bearer {{token}}
 # CONTACT US
 ################################################################################
 
-### Submit Contact Form (All Users)
+### Submit Contact Form DENGAN Auth
 POST {{baseUrl}}/contact
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "nama": "John Doe",
+    "name": "John Doe",
     "email": "john@example.com",
-    "pesan": "I have a question about the app"
+    "message": "I have a question about the app"
 }
+
 
 ### Get All Contact Messages (Admin Only)
 GET {{baseUrl}}/contact

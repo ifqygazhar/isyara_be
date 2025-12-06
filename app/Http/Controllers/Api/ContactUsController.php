@@ -25,7 +25,7 @@ class ContactUsController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Your message has been sent successfully',
+            'message' => 'Pesan Anda berhasil dikirim',
             'data' => $contact,
         ], 201);
     }
@@ -37,13 +37,13 @@ class ContactUsController extends Controller
         if ($contacts->isEmpty()) {
             return response()->json([
                 'status' => 'fail',
-                'message' => 'No contact messages found',
+                'message' => 'Tidak ada pesan kontak ditemukan',
             ], 404);
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Contact messages retrieved successfully',
+            'message' => 'Pesan kontak berhasil diambil',
             'data' => $contacts,
         ], 200);
     }
@@ -55,13 +55,13 @@ class ContactUsController extends Controller
         if (! $contact) {
             return response()->json([
                 'status' => 'fail',
-                'message' => 'Contact message not found',
+                'message' => 'Pesan kontak tidak ditemukan',
             ], 404);
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Contact message retrieved successfully',
+            'message' => 'Pesan kontak berhasil diambil',
             'data' => $contact,
         ], 200);
     }
@@ -73,7 +73,7 @@ class ContactUsController extends Controller
         if (! $contact) {
             return response()->json([
                 'status' => 'fail',
-                'message' => 'Contact message not found',
+                'message' => 'Pesan kontak tidak ditemukan',
             ], 404);
         }
 
@@ -81,7 +81,7 @@ class ContactUsController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Contact message deleted successfully',
+            'message' => 'Pesan kontak berhasil dihapus',
         ], 200);
     }
 }

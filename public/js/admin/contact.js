@@ -58,7 +58,7 @@ class ContactManager extends CrudManager {
             this.renderData(this.data);
         } catch (error) {
             console.error("Error loading contact messages:", error);
-            this.renderEmptyState("Error loading contact messages");
+            this.renderEmptyState("Gagal memuat pesan kontak");
         }
     }
 
@@ -67,7 +67,7 @@ class ContactManager extends CrudManager {
         const cardContainer = document.getElementById("contactCardContainer");
 
         if (!contacts || contacts.length === 0) {
-            this.renderEmptyState("No contact messages found");
+            this.renderEmptyState("Tidak ada pesan kontak ditemukan");
             return;
         }
 
@@ -83,24 +83,24 @@ class ContactManager extends CrudManager {
                     <div class="flex items-center">
                         <div class="flex-shrink-0 h-10 w-10 mr-3">
                             <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                item.nama || "User"
+                                item.name || "User"
                             )}" 
-                                 alt="${item.nama}" 
+                                 alt="${item.name}" 
                                  class="w-10 h-10 rounded-full object-cover">
                         </div>
                         <div class="text-sm font-medium text-gray-900">${
-                            item.nama
+                            item.name
                         }</div>
                     </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">${
                     item.email
                 }</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${this.truncate(item.pesan, 50)}
+                <td class="px-6 py-4 text-sm text-gray-500 hidden lg:table-cell">
+                    ${this.truncate(item.message, 60)}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${new Date(item.created_at).toLocaleDateString("en-US", {
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
+                    ${new Date(item.created_at).toLocaleDateString("id-ID", {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
@@ -109,15 +109,15 @@ class ContactManager extends CrudManager {
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div class="flex items-center gap-2">
                         <button 
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors" 
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors cursor-pointer" 
                             onclick="contactManager.viewDetail(${item.id})"
-                            title="View Message">
+                            title="Lihat Pesan">
                             <i class="fas fa-eye"></i>
                         </button>
                         <button 
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors" 
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors cursor-pointer" 
                             onclick="contactManager.deleteItem(${item.id})"
-                            title="Delete Message">
+                            title="Hapus Pesan">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -136,15 +136,15 @@ class ContactManager extends CrudManager {
                     <div class="flex items-start space-x-4">
                         <div class="flex-shrink-0">
                             <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                item.nama || "User"
+                                item.name || "User"
                             )}" 
-                                 alt="${item.nama}" 
+                                 alt="${item.name}" 
                                  class="w-12 h-12 rounded-full object-cover">
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between">
                                 <p class="text-lg font-semibold text-gray-900">${
-                                    item.nama
+                                    item.name
                                 }</p>
                                 <span class="text-xs text-gray-500">ID: ${
                                     item.id
@@ -154,12 +154,12 @@ class ContactManager extends CrudManager {
                                 item.email
                             }</p>
                             <p class="text-sm text-gray-700 mt-1 line-clamp-2">${
-                                item.pesan
+                                item.message
                             }</p>
                             <p class="text-xs text-gray-400 mt-2">
-                                Sent: ${new Date(
+                                Dikirim: ${new Date(
                                     item.created_at
-                                ).toLocaleDateString("en-US", {
+                                ).toLocaleDateString("id-ID", {
                                     year: "numeric",
                                     month: "short",
                                     day: "numeric",
@@ -172,17 +172,17 @@ class ContactManager extends CrudManager {
                                     onclick="contactManager.viewDetail(${
                                         item.id
                                     })" 
-                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-blue-600 hover:bg-blue-700 transition">
+                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-blue-600 hover:bg-blue-700 transition cursor-pointer">
                                     <i class="fas fa-eye mr-1"></i>
-                                    View
+                                    Lihat
                                 </button>
                                 <button 
                                     onclick="contactManager.deleteItem(${
                                         item.id
                                     })" 
-                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-red-600 hover:bg-red-700 transition">
+                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-red-600 hover:bg-red-700 transition cursor-pointer">
                                     <i class="fas fa-trash mr-1"></i>
-                                    Delete
+                                    Hapus
                                 </button>
                             </div>
                         </div>
@@ -194,7 +194,7 @@ class ContactManager extends CrudManager {
         }
     }
 
-    renderEmptyState(message = "No contact messages found") {
+    renderEmptyState(message = "Tidak ada pesan kontak ditemukan") {
         const tableBody = document.getElementById("contactTableBody");
         const cardContainer = document.getElementById("contactCardContainer");
 
@@ -223,9 +223,9 @@ class ContactManager extends CrudManager {
     filterData(searchTerm) {
         const filteredData = this.data.filter(
             (item) =>
-                item.nama?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.pesan?.toLowerCase().includes(searchTerm.toLowerCase())
+                item.message?.toLowerCase().includes(searchTerm.toLowerCase())
         );
         this.renderData(filteredData);
     }
@@ -236,13 +236,13 @@ class ContactManager extends CrudManager {
             const contact = response.data || response;
             this.currentContact = contact;
 
-            document.getElementById("detailName").textContent = contact.nama;
+            document.getElementById("detailName").textContent = contact.name;
             document.getElementById("detailEmail").textContent = contact.email;
             document.getElementById("detailMessage").textContent =
-                contact.pesan;
+                contact.message;
             document.getElementById("detailDate").textContent = new Date(
                 contact.created_at
-            ).toLocaleDateString("en-US", {
+            ).toLocaleDateString("id-ID", {
                 weekday: "long",
                 year: "numeric",
                 month: "long",
@@ -255,40 +255,34 @@ class ContactManager extends CrudManager {
             document.body.style.overflow = "hidden";
         } catch (error) {
             this.showToast(
-                "Failed to load contact details: " + error.message,
+                "Gagal memuat detail pesan: " + error.message,
                 "error"
             );
         }
     }
 
     async deleteItem(id) {
-        if (!confirm("Are you sure you want to delete this message?")) return;
+        if (!confirm("Apakah Anda yakin ingin menghapus pesan ini?")) return;
 
         try {
             await this.api.delete(`${this.endpoint}/${id}`);
-            this.showToast("Message deleted successfully", "success");
+            this.showToast("Pesan berhasil dihapus", "success");
             this.loadData();
         } catch (error) {
-            this.showToast(
-                "Failed to delete message: " + error.message,
-                "error"
-            );
+            this.showToast("Gagal menghapus pesan: " + error.message, "error");
         }
     }
 
     async deleteFromDetail(id) {
-        if (!confirm("Are you sure you want to delete this message?")) return;
+        if (!confirm("Apakah Anda yakin ingin menghapus pesan ini?")) return;
 
         try {
             await this.api.delete(`${this.endpoint}/${id}`);
-            this.showToast("Message deleted successfully", "success");
+            this.showToast("Pesan berhasil dihapus", "success");
             this.closeModal();
             this.loadData();
         } catch (error) {
-            this.showToast(
-                "Failed to delete message: " + error.message,
-                "error"
-            );
+            this.showToast("Gagal menghapus pesan: " + error.message, "error");
         }
     }
 
@@ -308,7 +302,7 @@ class ContactManager extends CrudManager {
 
     showToast(message, type = "info") {
         const toast = document.createElement("div");
-        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 shadow-lg ${
             type === "success"
                 ? "bg-green-500"
                 : type === "error"

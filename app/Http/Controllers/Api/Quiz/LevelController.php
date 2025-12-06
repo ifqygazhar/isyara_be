@@ -12,7 +12,7 @@ class LevelController extends Controller
 {
     public function index()
     {
-        $data = Level::all();
+        $data = Level::withCount('questions')->get();
 
         if ($data->isEmpty()) {
             return response()->json(['status' => 'fail', 'message' => 'Levels not found'], 404);
@@ -23,7 +23,7 @@ class LevelController extends Controller
 
     public function show($levelId)
     {
-        $level = Level::find($levelId);
+        $level = Level::withCount('questions')->find($levelId);
 
         if (! $level) {
             return response()->json(['status' => 'fail', 'message' => 'Level not found'], 404);
@@ -74,6 +74,9 @@ class LevelController extends Controller
             'description' => $request->input('description'),
         ]);
 
+        // Load questions count
+        $level->loadCount('questions');
+
         return response()->json(['status' => 'success', 'message' => 'Level created successfully', 'data' => $level], 201);
     }
 
@@ -108,6 +111,9 @@ class LevelController extends Controller
             'image_url' => $imageUrl,
             'description' => $request->input('description'),
         ]);
+
+        // Load questions count
+        $level->loadCount('questions');
 
         return response()->json(['status' => 'success', 'message' => 'Level updated successfully', 'data' => $level], 200);
     }
