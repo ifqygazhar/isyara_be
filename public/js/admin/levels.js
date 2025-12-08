@@ -10,16 +10,22 @@ class LevelsManager extends CrudManager {
 
         this.currentLevelId = null;
         this.questions = [];
-        this.isSubmitting = false; // Flag untuk mencegah double submit
-        this.isSubmittingQuestion = false; // Flag untuk question submit
+        this.isSubmitting = false;
+        this.isSubmittingQuestion = false;
+
+        // Image mode untuk Level dan Question
+        this.levelImageMode = "url";
+        this.questionImageMode = "url";
+        this.selectedLevelImageFile = null;
+        this.selectedQuestionImageFile = null;
 
         this.setupEventListeners();
+        this.setupImageUpload();
         this.setupQuestionsModal();
         this.loadData();
     }
 
     setupEventListeners() {
-        // Add level button
         const addBtn = document.getElementById("addLevelBtn");
         if (addBtn) {
             addBtn.addEventListener("click", () => {
@@ -27,7 +33,6 @@ class LevelsManager extends CrudManager {
             });
         }
 
-        // Cancel button
         const cancelBtn = document.getElementById("cancelBtn");
         if (cancelBtn) {
             cancelBtn.addEventListener("click", () => {
@@ -35,7 +40,6 @@ class LevelsManager extends CrudManager {
             });
         }
 
-        // Search functionality
         let searchTimeout;
         const searchInput = document.getElementById("searchInput");
         if (searchInput) {
@@ -47,21 +51,16 @@ class LevelsManager extends CrudManager {
             });
         }
 
-        // Modal close buttons
         document.querySelectorAll(".close").forEach((btn) => {
             btn.addEventListener("click", () => {
                 this.closeModal();
             });
         });
 
-        // Form submission - PASTIKAN HANYA 1 EVENT LISTENER
         const form = document.getElementById("levelForm");
         if (form) {
-            // Remove existing listeners (jika ada)
             const newForm = form.cloneNode(true);
             form.parentNode.replaceChild(newForm, form);
-
-            // Add single event listener
             newForm.addEventListener("submit", (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -70,36 +69,109 @@ class LevelsManager extends CrudManager {
         }
     }
 
+    setupImageUpload() {
+        // Level Image Upload Tabs
+        const uploadTabBtn = document.getElementById("uploadTabBtn");
+        const urlTabBtn = document.getElementById("urlTabBtn");
+        const uploadTab = document.getElementById("uploadTab");
+        const urlTab = document.getElementById("urlTab");
+
+        uploadTabBtn?.addEventListener("click", () => {
+            this.levelImageMode = "upload";
+            uploadTabBtn.classList.add("bg-indigo-50", "text-indigo-600");
+            uploadTabBtn.classList.remove("bg-white", "text-gray-700");
+            urlTabBtn.classList.remove("bg-indigo-50", "text-indigo-600");
+            urlTabBtn.classList.add("bg-white", "text-gray-700");
+            uploadTab.classList.remove("hidden");
+            urlTab.classList.add("hidden");
+        });
+
+        urlTabBtn?.addEventListener("click", () => {
+            this.levelImageMode = "url";
+            urlTabBtn.classList.add("bg-indigo-50", "text-indigo-600");
+            urlTabBtn.classList.remove("bg-white", "text-gray-700");
+            uploadTabBtn.classList.remove("bg-indigo-50", "text-indigo-600");
+            uploadTabBtn.classList.add("bg-white", "text-gray-700");
+            urlTab.classList.remove("hidden");
+            uploadTab.classList.add("hidden");
+        });
+
+        // Level File Upload
+        const imageFile = document.getElementById("imageFile");
+        imageFile?.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    this.showToast("Ukuran file maksimal 2MB", "error");
+                    e.target.value = "";
+                    return;
+                }
+                this.selectedLevelImageFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById("previewImg").src = e.target.result;
+                    document
+                        .getElementById("imagePreview")
+                        .classList.remove("hidden");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document
+            .getElementById("removeImageBtn")
+            ?.addEventListener("click", () => {
+                this.selectedLevelImageFile = null;
+                document.getElementById("imageFile").value = "";
+                document.getElementById("imagePreview").classList.add("hidden");
+            });
+
+        // Level URL Preview
+        const imageUrl = document.getElementById("imageUrl");
+        let urlTimeout;
+        imageUrl?.addEventListener("input", (e) => {
+            clearTimeout(urlTimeout);
+            urlTimeout = setTimeout(() => {
+                const url = e.target.value.trim();
+                if (url) {
+                    document.getElementById("urlPreviewImg").src = url;
+                    document
+                        .getElementById("urlImagePreview")
+                        .classList.remove("hidden");
+                } else {
+                    document
+                        .getElementById("urlImagePreview")
+                        .classList.add("hidden");
+                }
+            }, 500);
+        });
+    }
+
     setupQuestionsModal() {
-        // Close questions modal
         document
             .querySelector(".close-questions")
             ?.addEventListener("click", () => {
                 this.closeQuestionsModal();
             });
 
-        // Close question form modal
         document
             .querySelector(".close-question")
             ?.addEventListener("click", () => {
                 this.closeQuestionModal();
             });
 
-        // Add question button
         document
             .getElementById("addQuestionBtn")
             ?.addEventListener("click", () => {
                 this.openQuestionModal();
             });
 
-        // Cancel question button
         document
             .getElementById("cancelQuestionBtn")
             ?.addEventListener("click", () => {
                 this.closeQuestionModal();
             });
 
-        // Question form submit - PASTIKAN HANYA 1 EVENT LISTENER
         const questionForm = document.getElementById("questionForm");
         if (questionForm) {
             const newQuestionForm = questionForm.cloneNode(true);
@@ -111,7 +183,6 @@ class LevelsManager extends CrudManager {
                 this.handleQuestionSubmit();
             });
 
-            // Re-attach cancel button listener
             const cancelQuestionBtn =
                 newQuestionForm.querySelector("#cancelQuestionBtn");
             if (cancelQuestionBtn) {
@@ -120,6 +191,89 @@ class LevelsManager extends CrudManager {
                 });
             }
         }
+
+        // Question Image Upload Tabs
+        this.setupQuestionImageUpload();
+    }
+
+    setupQuestionImageUpload() {
+        const uploadTabBtn = document.getElementById("questionUploadTabBtn");
+        const urlTabBtn = document.getElementById("questionUrlTabBtn");
+        const uploadTab = document.getElementById("questionUploadTab");
+        const urlTab = document.getElementById("questionUrlTab");
+
+        uploadTabBtn?.addEventListener("click", () => {
+            this.questionImageMode = "upload";
+            uploadTabBtn.classList.add("bg-indigo-50", "text-indigo-600");
+            uploadTabBtn.classList.remove("bg-white", "text-gray-700");
+            urlTabBtn.classList.remove("bg-indigo-50", "text-indigo-600");
+            urlTabBtn.classList.add("bg-white", "text-gray-700");
+            uploadTab.classList.remove("hidden");
+            urlTab.classList.add("hidden");
+        });
+
+        urlTabBtn?.addEventListener("click", () => {
+            this.questionImageMode = "url";
+            urlTabBtn.classList.add("bg-indigo-50", "text-indigo-600");
+            urlTabBtn.classList.remove("bg-white", "text-gray-700");
+            uploadTabBtn.classList.remove("bg-indigo-50", "text-indigo-600");
+            uploadTabBtn.classList.add("bg-white", "text-gray-700");
+            urlTab.classList.remove("hidden");
+            uploadTab.classList.add("hidden");
+        });
+
+        // Question File Upload
+        const imageFile = document.getElementById("questionImageFile");
+        imageFile?.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    this.showToast("Ukuran file maksimal 2MB", "error");
+                    e.target.value = "";
+                    return;
+                }
+                this.selectedQuestionImageFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById("questionPreviewImg").src =
+                        e.target.result;
+                    document
+                        .getElementById("questionImagePreview")
+                        .classList.remove("hidden");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document
+            .getElementById("removeQuestionImageBtn")
+            ?.addEventListener("click", () => {
+                this.selectedQuestionImageFile = null;
+                document.getElementById("questionImageFile").value = "";
+                document
+                    .getElementById("questionImagePreview")
+                    .classList.add("hidden");
+            });
+
+        // Question URL Preview
+        const imageUrl = document.getElementById("questionImageUrl");
+        let urlTimeout;
+        imageUrl?.addEventListener("input", (e) => {
+            clearTimeout(urlTimeout);
+            urlTimeout = setTimeout(() => {
+                const url = e.target.value.trim();
+                if (url) {
+                    document.getElementById("questionUrlPreviewImg").src = url;
+                    document
+                        .getElementById("questionUrlImagePreview")
+                        .classList.remove("hidden");
+                } else {
+                    document
+                        .getElementById("questionUrlImagePreview")
+                        .classList.add("hidden");
+                }
+            }, 500);
+        });
     }
 
     async loadData() {
@@ -141,7 +295,6 @@ class LevelsManager extends CrudManager {
             return;
         }
 
-        // Desktop table rows
         tableBody.innerHTML = levels
             .map(
                 (item) => `
@@ -159,6 +312,15 @@ class LevelsManager extends CrudManager {
                     <div class="text-sm font-medium text-gray-900">${
                         item.title || item.name
                     }</div>
+                </td>
+                <td class="px-6 py-4 hidden md:table-cell">
+                    ${
+                        item.image_url
+                            ? `<img src="${item.image_url}" alt="${item.title}" class="w-16 h-16 object-cover rounded-lg">`
+                            : `<div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-layer-group text-gray-400"></i>
+                        </div>`
+                    }
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -205,10 +367,9 @@ class LevelsManager extends CrudManager {
 
     renderEmptyState(message = "Tidak ada level ditemukan") {
         const tableBody = document.getElementById("levelsTableBody");
-
-        const emptyStateHtml = `
+        tableBody.innerHTML = `
             <tr>
-                <td colspan="6" class="px-6 py-8 text-center">
+                <td colspan="7" class="px-6 py-8 text-center">
                     <div class="text-gray-500">
                         <i class="fas fa-layer-group text-4xl mb-4 text-gray-300"></i>
                         <p>${message}</p>
@@ -216,10 +377,6 @@ class LevelsManager extends CrudManager {
                 </td>
             </tr>
         `;
-
-        if (tableBody) {
-            tableBody.innerHTML = emptyStateHtml;
-        }
     }
 
     filterData(searchTerm) {
@@ -240,28 +397,31 @@ class LevelsManager extends CrudManager {
         document.getElementById("levelId").value = item.id;
         document.getElementById("levelNumber").value = item.id;
         document.getElementById("title").value = item.title || item.name;
-        document.getElementById("imageUrl").value = item.image_url || "";
         document.getElementById("description").value = item.description || "";
+
+        // Reset image fields
+        this.selectedLevelImageFile = null;
+        document.getElementById("imageFile").value = "";
+        document.getElementById("imagePreview").classList.add("hidden");
+
+        if (item.image_url) {
+            document.getElementById("imageUrl").value = item.image_url;
+            document.getElementById("urlPreviewImg").src = item.image_url;
+            document
+                .getElementById("urlImagePreview")
+                .classList.remove("hidden");
+        } else {
+            document.getElementById("imageUrl").value = "";
+            document.getElementById("urlImagePreview").classList.add("hidden");
+        }
 
         this.openModal("Edit Level");
     }
 
     async handleSubmit(e) {
-        // Prevent double submission
-        if (this.isSubmitting) {
-            console.log("Sudah dalam proses submit, melewati...");
-            return;
-        }
-
+        if (this.isSubmitting) return;
         this.isSubmitting = true;
 
-        const levelId = document.getElementById("levelId").value;
-        const levelNumber = document.getElementById("levelNumber").value;
-        const title = document.getElementById("title").value.trim();
-        const imageUrl = document.getElementById("imageUrl").value.trim();
-        const description = document.getElementById("description").value.trim();
-
-        // Disable submit button
         const submitBtn = document.getElementById("saveBtn");
         if (submitBtn) {
             submitBtn.disabled = true;
@@ -269,75 +429,81 @@ class LevelsManager extends CrudManager {
                 '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
         }
 
-        // Validasi client-side
-        if (!levelNumber) {
-            this.showToast("Nomor level wajib diisi", "error");
-            this.isSubmitting = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan Level";
-            }
-            return;
-        }
-
-        if (!title) {
-            this.showToast("Judul wajib diisi", "error");
-            this.isSubmitting = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan Level";
-            }
-            return;
-        }
-
-        if (!imageUrl) {
-            this.showToast("URL Gambar wajib diisi", "error");
-            this.isSubmitting = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan Level";
-            }
-            return;
-        }
-
-        if (!description) {
-            this.showToast("Deskripsi wajib diisi", "error");
-            this.isSubmitting = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan Level";
-            }
-            return;
-        }
-
-        const data = {
-            name: `Level ${levelNumber}`,
-            title: title,
-            image_url: imageUrl,
-            description: description,
-        };
-
         try {
+            const levelId = document.getElementById("levelId").value;
+            const levelNumber = document.getElementById("levelNumber").value;
+            const title = document.getElementById("title").value.trim();
+            const description = document
+                .getElementById("description")
+                .value.trim();
+
+            // Validasi
+            if (!levelNumber) {
+                this.showToast("Nomor level wajib diisi", "error");
+                this.resetSubmitButton(submitBtn);
+                return;
+            }
+
+            if (!title) {
+                this.showToast("Judul wajib diisi", "error");
+                this.resetSubmitButton(submitBtn);
+                return;
+            }
+
+            if (!description) {
+                this.showToast("Deskripsi wajib diisi", "error");
+                this.resetSubmitButton(submitBtn);
+                return;
+            }
+
+            // SELALU gunakan FormData untuk support file upload
+            const formData = new FormData();
+            formData.append("name", `Level ${levelNumber}`);
+            formData.append("title", title);
+            formData.append("description", description);
+
+            // Handle image based on mode
+            if (
+                this.levelImageMode === "upload" &&
+                this.selectedLevelImageFile
+            ) {
+                formData.append("image", this.selectedLevelImageFile);
+            } else if (this.levelImageMode === "url") {
+                const imageUrl = document
+                    .getElementById("imageUrl")
+                    .value.trim();
+                if (imageUrl) {
+                    formData.append("image_url", imageUrl);
+                }
+            }
+
             if (levelId) {
-                await this.api.put(`${this.endpoint}/${levelId}`, data);
+                await this.api.post(`${this.endpoint}/${levelId}`, formData);
                 this.showToast("Level berhasil diperbarui", "success");
             } else {
-                await this.api.post(this.endpoint, data);
+                // CREATE
+                await this.api.post(this.endpoint, formData);
                 this.showToast("Level berhasil ditambahkan", "success");
             }
+
             this.closeModal();
             await this.loadData();
         } catch (error) {
             console.error("Submit error:", error);
             this.showToast("Gagal menyimpan level: " + error.message, "error");
         } finally {
-            this.isSubmitting = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan Level";
-            }
+            this.resetSubmitButton(submitBtn);
         }
     }
+
+    resetSubmitButton(btn) {
+        this.isSubmitting = false;
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Simpan Level";
+        }
+    }
+
     async deleteItem(id) {
         if (
             !confirm(
@@ -468,6 +634,17 @@ class LevelsManager extends CrudManager {
             document.getElementById("questionId").value = "";
             document.getElementById("questionLevelId").value =
                 this.currentLevelId;
+
+            // Reset question image fields
+            this.selectedQuestionImageFile = null;
+            document.getElementById("questionImageFile").value = "";
+            document
+                .getElementById("questionImagePreview")
+                .classList.add("hidden");
+            document.getElementById("questionImageUrl").value = "";
+            document
+                .getElementById("questionUrlImagePreview")
+                .classList.add("hidden");
         }
 
         modal.classList.remove("hidden");
@@ -480,36 +657,36 @@ class LevelsManager extends CrudManager {
         document.getElementById("questionId").value = question.id;
         document.getElementById("questionLevelId").value = this.currentLevelId;
         document.getElementById("questionText").value = question.question;
-        document.getElementById("questionImageUrl").value =
-            question.image_url || "";
         document.getElementById("correctAnswer").value =
             question.correct_option || question.correct_answer;
+
+        // Reset question image fields
+        this.selectedQuestionImageFile = null;
+        document.getElementById("questionImageFile").value = "";
+        document.getElementById("questionImagePreview").classList.add("hidden");
+
+        if (question.image_url) {
+            document.getElementById("questionImageUrl").value =
+                question.image_url;
+            document.getElementById("questionUrlPreviewImg").src =
+                question.image_url;
+            document
+                .getElementById("questionUrlImagePreview")
+                .classList.remove("hidden");
+        } else {
+            document.getElementById("questionImageUrl").value = "";
+            document
+                .getElementById("questionUrlImagePreview")
+                .classList.add("hidden");
+        }
 
         this.openQuestionModal(questionId);
     }
 
     async handleQuestionSubmit() {
-        // Prevent double submission
-        if (this.isSubmittingQuestion) {
-            console.log("Sudah dalam proses submit pertanyaan, melewati...");
-            return;
-        }
-
+        if (this.isSubmittingQuestion) return;
         this.isSubmittingQuestion = true;
 
-        const questionId = document.getElementById("questionId").value;
-        const levelId = this.currentLevelId;
-        const questionText = document
-            .getElementById("questionText")
-            .value.trim();
-        const imageUrl = document
-            .getElementById("questionImageUrl")
-            .value.trim();
-        const correctAnswer = document
-            .getElementById("correctAnswer")
-            .value.trim();
-
-        // Disable submit button
         const submitBtn = document.getElementById("saveQuestionBtn");
         if (submitBtn) {
             submitBtn.disabled = true;
@@ -517,53 +694,63 @@ class LevelsManager extends CrudManager {
                 '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
         }
 
-        // Validasi
-        if (!questionText) {
-            this.showToast("Pertanyaan wajib diisi", "error");
-            this.isSubmittingQuestion = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan";
-            }
-            return;
-        }
-
-        if (!imageUrl) {
-            this.showToast("URL Gambar wajib diisi", "error");
-            this.isSubmittingQuestion = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan";
-            }
-            return;
-        }
-
-        if (!correctAnswer) {
-            this.showToast("Jawaban benar wajib diisi", "error");
-            this.isSubmittingQuestion = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan";
-            }
-            return;
-        }
-
-        const data = {
-            question: questionText,
-            image_url: imageUrl,
-            correct_option: correctAnswer,
-            options: [correctAnswer],
-        };
-
         try {
+            const questionId = document.getElementById("questionId").value;
+            const levelId = this.currentLevelId;
+            const questionText = document
+                .getElementById("questionText")
+                .value.trim();
+            const correctAnswer = document
+                .getElementById("correctAnswer")
+                .value.trim();
+
+            // Validasi
+            if (!questionText) {
+                this.showToast("Pertanyaan wajib diisi", "error");
+                this.resetQuestionSubmitButton(submitBtn);
+                return;
+            }
+
+            if (!correctAnswer) {
+                this.showToast("Jawaban benar wajib diisi", "error");
+                this.resetQuestionSubmitButton(submitBtn);
+                return;
+            }
+
+            // SELALU gunakan FormData untuk support file upload
+            const formData = new FormData();
+            formData.append("question", questionText);
+            formData.append("correct_option", correctAnswer);
+            // FIX: Kirim array sebagai JSON string
+            formData.append("options[]", correctAnswer);
+
+            // Handle image based on mode
+            if (
+                this.questionImageMode === "upload" &&
+                this.selectedQuestionImageFile
+            ) {
+                formData.append("image", this.selectedQuestionImageFile);
+            } else if (this.questionImageMode === "url") {
+                const imageUrl = document
+                    .getElementById("questionImageUrl")
+                    .value.trim();
+                if (imageUrl) {
+                    formData.append("image_url", imageUrl);
+                }
+            }
+
             if (questionId) {
-                await this.api.put(
+                await this.api.post(
                     `/quiz/levels/${levelId}/questions/${questionId}`,
-                    data
+                    formData
                 );
                 this.showToast("Pertanyaan berhasil diperbarui", "success");
             } else {
-                await this.api.post(`/quiz/levels/${levelId}/questions`, data);
+                // CREATE
+                await this.api.post(
+                    `/quiz/levels/${levelId}/questions`,
+                    formData
+                );
                 this.showToast("Pertanyaan berhasil ditambahkan", "success");
             }
 
@@ -577,11 +764,15 @@ class LevelsManager extends CrudManager {
                 "error"
             );
         } finally {
-            this.isSubmittingQuestion = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan";
-            }
+            this.resetQuestionSubmitButton(submitBtn);
+        }
+    }
+
+    resetQuestionSubmitButton(btn) {
+        this.isSubmittingQuestion = false;
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Simpan Pertanyaan";
         }
     }
 
@@ -611,6 +802,13 @@ class LevelsManager extends CrudManager {
         if (title === "Tambah Level") {
             document.getElementById("levelForm").reset();
             document.getElementById("levelId").value = "";
+
+            // Reset level image fields
+            this.selectedLevelImageFile = null;
+            document.getElementById("imageFile").value = "";
+            document.getElementById("imagePreview").classList.add("hidden");
+            document.getElementById("imageUrl").value = "";
+            document.getElementById("urlImagePreview").classList.add("hidden");
         }
 
         modal.classList.remove("hidden");
@@ -622,6 +820,7 @@ class LevelsManager extends CrudManager {
         modal.classList.add("hidden");
         document.body.style.overflow = "";
         this.isSubmitting = false;
+        this.selectedLevelImageFile = null;
     }
 
     closeQuestionsModal() {
@@ -634,8 +833,8 @@ class LevelsManager extends CrudManager {
     closeQuestionModal() {
         const modal = document.getElementById("questionModal");
         modal.classList.add("hidden");
-        document.getElementById("questionForm").reset();
         this.isSubmittingQuestion = false;
+        this.selectedQuestionImageFile = null;
     }
 
     showToast(message, type = "info") {
@@ -648,12 +847,8 @@ class LevelsManager extends CrudManager {
                 : "bg-blue-500"
         }`;
         toast.textContent = message;
-
         document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
+        setTimeout(() => toast.remove(), 3000);
     }
 }
 

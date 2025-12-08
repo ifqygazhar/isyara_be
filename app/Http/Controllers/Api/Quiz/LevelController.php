@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Quiz;
 use App\Http\Controllers\Controller;
 use App\Models\Level;
 use App\Models\UserProgress;
+use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -55,16 +56,25 @@ class LevelController extends Controller
         $request->validate([
             'name' => 'required|string|max:100',
             'title' => 'required|string|max:255',
-            'image' => 'required_without:image_url|file|image|max:2048',
-            'image_url' => 'required_without:image|string|url',
+            'image' => 'nullable|file|image|max:2048',
+            'image_url' => 'nullable|string|url',
             'description' => 'required|string',
         ]);
 
+        // Handle image
+        $imageUrl = null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('images', 'public');
+            $path = $request->file('image')->store('levels', 'public');
             $imageUrl = Storage::url($path);
-        } else {
+        } elseif ($request->filled('image_url')) {
             $imageUrl = $request->input('image_url');
+        }
+
+        if (! $imageUrl) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Image or image URL is required',
+            ], 422);
         }
 
         $level = Level::create([
@@ -96,13 +106,29 @@ class LevelController extends Controller
             'description' => 'required|string',
         ]);
 
+        $imageUrl = $level->image_url; // Default: keep existing image
+        $shouldDeleteOldImage = false;
+
+        // Determine new image URL and if old image should be deleted
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('images', 'public');
+            // New file uploaded
+            $path = $request->file('image')->store('levels', 'public');
             $imageUrl = Storage::url($path);
+            $shouldDeleteOldImage = true;
         } elseif ($request->filled('image_url')) {
-            $imageUrl = $request->input('image_url');
-        } else {
-            $imageUrl = $level->image_url;
+            // New URL provided
+            $newImageUrl = $request->input('image_url');
+
+            // Only delete old image if the URL is different
+            if ($level->image_url !== $newImageUrl) {
+                $imageUrl = $newImageUrl;
+                $shouldDeleteOldImage = true;
+            }
+        }
+
+        // Delete old image if it's from storage and we're replacing it
+        if ($shouldDeleteOldImage && $level->image_url) {
+            Utils::deleteImageFromStorage($level->image_url);
         }
 
         $level->update([
@@ -126,12 +152,9 @@ class LevelController extends Controller
             return response()->json(['status' => 'fail', 'message' => 'Level not found'], 404);
         }
 
-        $imageUrl = $level->image_url;
-        if ($imageUrl && preg_match('#/storage/(.*)$#', $imageUrl, $m)) {
-            $path = $m[1];
-            if (Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
-            }
+        // Delete image from storage if exists
+        if ($level->image_url) {
+            Utils::deleteImageFromStorage($level->image_url);
         }
 
         $level->delete();

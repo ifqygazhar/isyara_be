@@ -50,12 +50,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Levels (Admin only: create, update, delete)
         Route::post('/quiz/levels', [LevelController::class, 'store']);
-        Route::put('/quiz/levels/{levelId}', [LevelController::class, 'update']);
+        Route::post('/quiz/levels/{levelId}', [LevelController::class, 'update']);
         Route::delete('/quiz/levels/{levelId}', [LevelController::class, 'destroy']);
 
         // Questions (Admin only: create, update, delete)
         Route::post('/quiz/levels/{levelId}/questions', [QuestionController::class, 'store']);
-        Route::put('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'update']);
+        Route::post('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'update']);
         Route::delete('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'destroy']);
 
         // Contact Us (Admin: view all, view single, delete)

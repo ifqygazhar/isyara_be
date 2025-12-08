@@ -7,6 +7,7 @@ use App\Models\Level;
 use App\Models\Question;
 use App\Models\UserAnswer;
 use App\Models\UserProgress;
+use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -67,15 +68,24 @@ class QuestionController extends Controller
             'question' => 'required|string',
             'correct_option' => 'required|string|max:255',
             'options' => 'required|array',
-            'image' => 'required_without:image_url|file|image|max:2048',
-            'image_url' => 'required_without:image|string|url',
+            'image' => 'nullable|file|image|max:2048',
+            'image_url' => 'nullable|string|url',
         ]);
 
+        // Handle image
+        $imageUrl = null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('images', 'public');
+            $path = $request->file('image')->store('questions', 'public');
             $imageUrl = Storage::url($path);
-        } else {
+        } elseif ($request->filled('image_url')) {
             $imageUrl = $request->input('image_url');
+        }
+
+        if (! $imageUrl) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Image or image URL is required',
+            ], 422);
         }
 
         // Get next question ID for this level
@@ -122,13 +132,29 @@ class QuestionController extends Controller
             'image_url' => 'nullable|string|url',
         ]);
 
+        $imageUrl = $question->image_url; // Default: keep existing image
+        $shouldDeleteOldImage = false;
+
+        // Determine new image URL and if old image should be deleted
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('images', 'public');
+            // New file uploaded
+            $path = $request->file('image')->store('questions', 'public');
             $imageUrl = Storage::url($path);
+            $shouldDeleteOldImage = true;
         } elseif ($request->filled('image_url')) {
-            $imageUrl = $request->input('image_url');
-        } else {
-            $imageUrl = $question->image_url;
+            // New URL provided
+            $newImageUrl = $request->input('image_url');
+
+            // Only delete old image if the URL is different
+            if ($question->image_url !== $newImageUrl) {
+                $imageUrl = $newImageUrl;
+                $shouldDeleteOldImage = true;
+            }
+        }
+
+        // Delete old image if it's from storage and we're replacing it
+        if ($shouldDeleteOldImage && $question->image_url) {
+            Utils::deleteImageFromStorage($question->image_url);
         }
 
         $question->update([
@@ -138,12 +164,14 @@ class QuestionController extends Controller
             'image_url' => $imageUrl,
         ]);
 
-        $totalQuestions = Question::where('level_id', $levelId)->count();
+        $allQuestions = Question::where('level_id', $levelId)->orderBy('id')->pluck('id');
+        $totalQuestions = $allQuestions->count();
+        $questionIndex = $allQuestions->search($questionId) + 1;
 
         $data = [
             'id' => $question->id,
             'level_id' => $question->level_id,
-            'name' => "Question {$questionId} of {$totalQuestions}",
+            'name' => "Question {$questionIndex} of {$totalQuestions}",
             'question' => $question->question,
             'correct_option' => $question->correct_option,
             'options' => $question->options,
@@ -161,12 +189,9 @@ class QuestionController extends Controller
             return response()->json(['status' => 'fail', 'message' => 'Question not found'], 404);
         }
 
-        $imageUrl = $question->image_url;
-        if ($imageUrl && preg_match('#/storage/(.*)$#', $imageUrl, $m)) {
-            $path = $m[1];
-            if (Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
-            }
+        // Delete image from storage if exists
+        if ($question->image_url) {
+            Utils::deleteImageFromStorage($question->image_url);
         }
 
         $question->delete();
