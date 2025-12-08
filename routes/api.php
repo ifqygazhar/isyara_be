@@ -35,17 +35,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // News
         Route::post('/information/news', [NewsController::class, 'store']);
-        Route::put('/information/news/{id}', [NewsController::class, 'update']);
+        Route::post('/information/news/{id}', [NewsController::class, 'update']);
         Route::delete('/information/news/{id}', [NewsController::class, 'destroy']);
 
         // Events
         Route::post('/information/events', [EventController::class, 'store']);
-        Route::put('/information/events/{id}', [EventController::class, 'update']);
+        Route::post('/information/events/{id}', [EventController::class, 'update']);
         Route::delete('/information/events/{id}', [EventController::class, 'destroy']);
 
         // Community
         Route::post('/information/community', [CommunityController::class, 'store']);
-        Route::put('/information/community/{id}', [CommunityController::class, 'update']);
+        Route::post('/information/community/{id}', [CommunityController::class, 'update']);
         Route::delete('/information/community/{id}', [CommunityController::class, 'destroy']);
 
         // Levels (Admin only: create, update, delete)

@@ -3,76 +3,133 @@ class NewsManager extends CrudManager {
         super({
             endpoint: "/information/news",
             tableBodyId: "newsTableBody",
-            cardContainerId: "newsCardContainer",
             modalId: "newsModal",
             formId: "newsForm",
         });
 
-        this.isSubmitting = false; // Flag untuk mencegah double submit
+        this.selectedImageFile = null;
+        this.imageMode = "url"; // Default to URL
+        this.isSubmitting = false;
+
         this.setupEventListeners();
+        this.setupImageUpload();
         this.loadData();
     }
 
     setupEventListeners() {
-        // Add button
-        const addBtn = document.getElementById("addNewsBtn");
-        if (addBtn) {
-            addBtn.addEventListener("click", () => {
-                this.openModal("Tambah Berita");
-            });
-        }
-
-        // Cancel button
-        const cancelBtn = document.getElementById("cancelBtn");
-        if (cancelBtn) {
-            cancelBtn.addEventListener("click", () => {
-                this.closeModal();
-            });
-        }
-
-        // Close buttons
-        document.querySelectorAll(".close").forEach((btn) => {
-            btn.addEventListener("click", () => {
-                this.closeModal();
-            });
+        document.getElementById("addNewsBtn")?.addEventListener("click", () => {
+            this.openModal("Tambah Berita");
         });
 
-        // Search functionality
-        let searchTimeout;
-        const searchInput = document.getElementById("searchInput");
-        if (searchInput) {
-            searchInput.addEventListener("input", (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    this.filterData(e.target.value);
-                }, 300);
-            });
-        }
+        document.getElementById("newsModal")?.addEventListener("click", (e) => {
+            if (e.target === e.currentTarget) {
+                this.closeModal();
+            }
+            if (e.target.id === "cancelBtn" || e.target.closest("#cancelBtn")) {
+                this.closeModal();
+            }
+        });
 
-        // Form submission - PASTIKAN HANYA 1 EVENT LISTENER
+        document.querySelectorAll(".close").forEach((btn) => {
+            btn.addEventListener("click", () => this.closeModal());
+        });
+
         const form = document.getElementById("newsForm");
         if (form) {
-            // Remove existing listeners (jika ada)
             const newForm = form.cloneNode(true);
             form.parentNode.replaceChild(newForm, form);
-
-            // Add single event listener
             newForm.addEventListener("submit", (e) => {
                 e.preventDefault();
-                e.stopPropagation(); // Stop event bubbling
+                e.stopPropagation();
                 this.handleSubmit(e);
             });
         }
 
-        // Modal backdrop click
-        const modal = document.getElementById("newsModal");
-        if (modal) {
-            modal.addEventListener("click", (e) => {
-                if (e.target === modal) {
-                    this.closeModal();
-                }
+        let searchTimeout;
+        document
+            .getElementById("searchInput")
+            ?.addEventListener("input", (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(
+                    () => this.filterData(e.target.value),
+                    300
+                );
             });
-        }
+    }
+
+    setupImageUpload() {
+        const uploadTabBtn = document.getElementById("uploadTabBtn");
+        const urlTabBtn = document.getElementById("urlTabBtn");
+        const uploadTab = document.getElementById("uploadTab");
+        const urlTab = document.getElementById("urlTab");
+
+        uploadTabBtn?.addEventListener("click", () => {
+            this.imageMode = "upload";
+            uploadTabBtn.classList.add("bg-indigo-50", "text-indigo-600");
+            uploadTabBtn.classList.remove("bg-white", "text-gray-700");
+            urlTabBtn.classList.remove("bg-indigo-50", "text-indigo-600");
+            urlTabBtn.classList.add("bg-white", "text-gray-700");
+            uploadTab.classList.remove("hidden");
+            urlTab.classList.add("hidden");
+        });
+
+        urlTabBtn?.addEventListener("click", () => {
+            this.imageMode = "url";
+            urlTabBtn.classList.add("bg-indigo-50", "text-indigo-600");
+            urlTabBtn.classList.remove("bg-white", "text-gray-700");
+            uploadTabBtn.classList.remove("bg-indigo-50", "text-indigo-600");
+            uploadTabBtn.classList.add("bg-white", "text-gray-700");
+            urlTab.classList.remove("hidden");
+            uploadTab.classList.add("hidden");
+        });
+
+        const imageFile = document.getElementById("imageFile");
+        imageFile?.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    this.showToast("Ukuran file maksimal 2MB", "error");
+                    e.target.value = "";
+                    return;
+                }
+                this.selectedImageFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById("previewImg").src = e.target.result;
+                    document
+                        .getElementById("imagePreview")
+                        .classList.remove("hidden");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document
+            .getElementById("removeImageBtn")
+            ?.addEventListener("click", () => {
+                this.selectedImageFile = null;
+                document.getElementById("imageFile").value = "";
+                document.getElementById("imagePreview").classList.add("hidden");
+            });
+
+        const imageUrl = document.getElementById("imageUrl");
+        let urlTimeout;
+        imageUrl?.addEventListener("input", (e) => {
+            clearTimeout(urlTimeout);
+            urlTimeout = setTimeout(() => {
+                const url = e.target.value.trim();
+                if (url) {
+                    document.getElementById("urlPreviewImg").src = url;
+                    document
+                        .getElementById("urlImagePreview")
+                        .classList.remove("hidden");
+                } else {
+                    document
+                        .getElementById("urlImagePreview")
+                        .classList.add("hidden");
+                }
+            }, 500);
+        });
     }
 
     async loadData() {
@@ -88,63 +145,46 @@ class NewsManager extends CrudManager {
 
     renderData(news) {
         const tableBody = document.getElementById("newsTableBody");
-        const cardContainer = document.getElementById("newsCardContainer");
-
         if (!news || news.length === 0) {
-            this.renderEmptyState("Tidak ada berita ditemukan");
+            this.renderEmptyState();
             return;
         }
 
-        // Desktop table rows
         tableBody.innerHTML = news
             .map(
                 (item) => `
             <tr class="hover:bg-gray-50 transition">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${
-                    item.id
-                }</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 h-10 w-10 mr-3">
-                            ${
-                                item.image_url
-                                    ? `<img src="${item.image_url}" alt="${item.title}" class="w-10 h-10 object-cover rounded-lg">`
-                                    : `<div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-newspaper text-gray-400"></i>
-                                </div>`
-                            }
-                        </div>
-                        <div class="text-sm font-medium text-gray-900">${this.truncate(
-                            item.title,
-                            40
-                        )}</div>
-                    </div>
+                <td class="px-6 py-4 text-sm text-gray-900">${item.id}</td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900">${this.truncate(
+                    item.title,
+                    40
+                )}</td>
+                <td class="px-6 py-4 hidden md:table-cell">
+                    <img src="${item.image_url}" alt="${
+                    item.title
+                }" class="w-16 h-16 object-cover rounded-lg">
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${this.truncate(
-                        item.description || "Tidak ada deskripsi",
-                        60
-                    )}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 text-sm text-gray-600 hidden lg:table-cell max-w-xs truncate">${this.truncate(
+                    item.description,
+                    60
+                )}</td>
+                <td class="px-6 py-4 text-sm text-gray-500 hidden lg:table-cell">
                     ${new Date(item.created_at).toLocaleDateString("id-ID", {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
                     })}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div class="flex items-center gap-2">
-                        <button 
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-200 transition-colors cursor-pointer" 
-                            onclick="newsManager.editItem(${item.id})"
-                            title="Edit Berita">
+                <td class="px-6 py-4 text-sm">
+                    <div class="flex gap-2">
+                        <button onclick="newsManager.editItem(${
+                            item.id
+                        })" class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-200 transition cursor-pointer">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button 
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors cursor-pointer" 
-                            onclick="newsManager.deleteItem(${item.id})"
-                            title="Hapus Berita">
+                        <button onclick="newsManager.deleteItem(${
+                            item.id
+                        })" class="w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition cursor-pointer">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -153,104 +193,25 @@ class NewsManager extends CrudManager {
         `
             )
             .join("");
-
-        // Mobile cards
-        if (cardContainer) {
-            cardContainer.innerHTML = news
-                .map(
-                    (item) => `
-                <div class="border-b border-gray-200 p-4 hover:bg-gray-50 transition">
-                    <div class="flex items-start space-x-4">
-                        <div class="flex-shrink-0">
-                            ${
-                                item.image_url
-                                    ? `<img src="${item.image_url}" alt="${item.title}" class="w-16 h-16 object-cover rounded-lg">`
-                                    : `<div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-newspaper text-2xl text-gray-400"></i>
-                                </div>`
-                            }
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between">
-                                <p class="text-lg font-semibold text-gray-900 truncate">${
-                                    item.title
-                                }</p>
-                                <span class="text-xs text-gray-500">ID: ${
-                                    item.id
-                                }</span>
-                            </div>
-                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">${
-                                item.description || "Tidak ada deskripsi"
-                            }</p>
-                            <p class="text-xs text-gray-400 mt-2">
-                                Dibuat: ${new Date(
-                                    item.created_at
-                                ).toLocaleDateString("id-ID", {
-                                    year: "numeric",
-                                    month: "short",
-                                    day: "numeric",
-                                })}
-                            </p>
-                            <div class="flex items-center gap-2 mt-3">
-                                <button 
-                                    onclick="newsManager.editItem(${item.id})" 
-                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-blue-600 hover:bg-blue-700 transition cursor-pointer">
-                                    <i class="fas fa-edit mr-1"></i>
-                                    Edit
-                                </button>
-                                <button 
-                                    onclick="newsManager.deleteItem(${
-                                        item.id
-                                    })" 
-                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded text-white bg-red-600 hover:bg-red-700 transition cursor-pointer">
-                                    <i class="fas fa-trash mr-1"></i>
-                                    Hapus
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-                )
-                .join("");
-        }
     }
 
     renderEmptyState(message = "Tidak ada berita ditemukan") {
-        const tableBody = document.getElementById("newsTableBody");
-        const cardContainer = document.getElementById("newsCardContainer");
-
-        const emptyStateHtml = `
-            <div class="text-center text-gray-500 py-8">
-                <i class="fas fa-newspaper text-4xl mb-4 text-gray-300"></i>
-                <p>${message}</p>
-            </div>
+        document.getElementById("newsTableBody").innerHTML = `
+            <tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                <i class="fas fa-newspaper text-4xl mb-4 text-gray-300"></i><p>${message}</p>
+            </td></tr>
         `;
-
-        if (tableBody) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="px-6 py-4">
-                        ${emptyStateHtml}
-                    </td>
-                </tr>
-            `;
-        }
-
-        if (cardContainer) {
-            cardContainer.innerHTML = emptyStateHtml;
-        }
     }
 
     filterData(searchTerm) {
-        const filteredData = this.data.filter(
+        const filtered = this.data.filter(
             (item) =>
                 item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 item.description
                     ?.toLowerCase()
                     .includes(searchTerm.toLowerCase())
         );
-        this.renderData(filteredData);
+        this.renderData(filtered);
     }
 
     editItem(id) {
@@ -259,27 +220,27 @@ class NewsManager extends CrudManager {
 
         document.getElementById("newsId").value = item.id;
         document.getElementById("title").value = item.title;
-        document.getElementById("imageUrl").value = item.image_url || "";
-        document.getElementById("description").value = item.description || "";
+        document.getElementById("description").value = item.description;
+
+        this.selectedImageFile = null;
+        document.getElementById("imageFile").value = "";
+        document.getElementById("imagePreview").classList.add("hidden");
+
+        if (item.image_url) {
+            document.getElementById("imageUrl").value = item.image_url;
+            document.getElementById("urlPreviewImg").src = item.image_url;
+            document
+                .getElementById("urlImagePreview")
+                .classList.remove("hidden");
+        }
 
         this.openModal("Edit Berita");
     }
 
     async handleSubmit(e) {
-        // Prevent double submission
-        if (this.isSubmitting) {
-            console.log("Sudah dalam proses submit, melewati...");
-            return;
-        }
-
+        if (this.isSubmitting) return;
         this.isSubmitting = true;
 
-        const newsId = document.getElementById("newsId").value;
-        const title = document.getElementById("title").value.trim();
-        const imageUrl = document.getElementById("imageUrl").value.trim();
-        const description = document.getElementById("description").value.trim();
-
-        // Disable submit button
         const submitBtn = document.getElementById("saveBtn");
         if (submitBtn) {
             submitBtn.disabled = true;
@@ -287,58 +248,37 @@ class NewsManager extends CrudManager {
                 '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
         }
 
-        // Validasi client-side
-        if (!title) {
-            this.showToast("Judul wajib diisi", "error");
-            this.isSubmitting = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan";
-            }
-            return;
-        }
-
-        if (!imageUrl) {
-            this.showToast("URL Gambar wajib diisi", "error");
-            this.isSubmitting = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan";
-            }
-            return;
-        }
-
-        if (!description) {
-            this.showToast("Deskripsi wajib diisi", "error");
-            this.isSubmitting = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Simpan";
-            }
-            return;
-        }
-
-        const data = {
-            title: title,
-            image_url: imageUrl,
-            description: description,
-        };
-
         try {
+            const newsId = document.getElementById("newsId").value;
+            const formData = new FormData();
+            formData.append("title", document.getElementById("title").value);
+            formData.append(
+                "description",
+                document.getElementById("description").value
+            );
+
+            if (this.imageMode === "upload" && this.selectedImageFile) {
+                formData.append("image", this.selectedImageFile);
+            } else if (this.imageMode === "url") {
+                const imageUrl = document
+                    .getElementById("imageUrl")
+                    .value.trim();
+                if (imageUrl) formData.append("image_url", imageUrl);
+            }
+
             if (newsId) {
-                await this.api.put(`${this.endpoint}/${newsId}`, data);
+                await this.api.post(`${this.endpoint}/${newsId}`, formData);
                 this.showToast("Berita berhasil diperbarui", "success");
             } else {
-                await this.api.post(this.endpoint, data);
+                await this.api.post(this.endpoint, formData);
                 this.showToast("Berita berhasil ditambahkan", "success");
             }
+
             this.closeModal();
-            await this.loadData();
+            this.loadData();
         } catch (error) {
-            console.error("Submit error:", error);
-            this.showToast("Gagal menyimpan berita: " + error.message, "error");
+            this.showToast("Gagal menyimpan: " + error.message, "error");
         } finally {
-            // Re-enable submit button
             this.isSubmitting = false;
             if (submitBtn) {
                 submitBtn.disabled = false;
@@ -349,13 +289,12 @@ class NewsManager extends CrudManager {
 
     async deleteItem(id) {
         if (!confirm("Apakah Anda yakin ingin menghapus berita ini?")) return;
-
         try {
             await this.api.delete(`${this.endpoint}/${id}`);
             this.showToast("Berita berhasil dihapus", "success");
             this.loadData();
         } catch (error) {
-            this.showToast("Gagal menghapus berita: " + error.message, "error");
+            this.showToast("Gagal menghapus: " + error.message, "error");
         }
     }
 
@@ -365,23 +304,23 @@ class NewsManager extends CrudManager {
     }
 
     openModal(title) {
-        const modal = document.getElementById("newsModal");
         document.getElementById("modalTitle").textContent = title;
-
         if (title === "Tambah Berita") {
             document.getElementById("newsForm").reset();
             document.getElementById("newsId").value = "";
+            document.getElementById("imagePreview").classList.add("hidden");
+            document.getElementById("urlImagePreview").classList.add("hidden");
+            this.selectedImageFile = null;
         }
-
-        modal.classList.remove("hidden");
+        document.getElementById("newsModal").classList.remove("hidden");
         document.body.style.overflow = "hidden";
     }
 
     closeModal() {
-        const modal = document.getElementById("newsModal");
-        modal.classList.add("hidden");
+        document.getElementById("newsModal").classList.add("hidden");
         document.body.style.overflow = "";
-        this.isSubmitting = false; // Reset flag saat modal ditutup
+        this.selectedImageFile = null;
+        this.isSubmitting = false;
     }
 
     showToast(message, type = "info") {
@@ -394,16 +333,11 @@ class NewsManager extends CrudManager {
                 : "bg-blue-500"
         }`;
         toast.textContent = message;
-
         document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
+        setTimeout(() => toast.remove(), 3000);
     }
 }
 
-// Initialize
 let newsManager;
 document.addEventListener("DOMContentLoaded", () => {
     newsManager = new NewsManager();
