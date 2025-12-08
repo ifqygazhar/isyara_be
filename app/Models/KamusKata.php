@@ -14,5 +14,6 @@ class KamusKata extends Model
     protected $fillable = [
         'image_url',
         'kata',
+        'image',
     ];
 }

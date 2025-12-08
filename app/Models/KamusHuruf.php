@@ -14,5 +14,6 @@ class KamusHuruf extends Model
     protected $fillable = [
         'image_url',
         'huruf',
+        'image',
     ];
 }

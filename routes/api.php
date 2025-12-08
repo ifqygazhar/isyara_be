@@ -26,11 +26,11 @@ Route::middleware('auth:sanctum')->group(function () {
         });
 
         Route::post('/dictionary/letters', [LetterController::class, 'store']);
-        Route::put('/dictionary/letters/{id}', [LetterController::class, 'update']);
+        Route::post('/dictionary/letters/{id}', [LetterController::class, 'update']);
         Route::delete('/dictionary/letters/{id}', [LetterController::class, 'destroy']);
 
         Route::post('/dictionary/words', [WordController::class, 'store']);
-        Route::put('/dictionary/words/{id}', [WordController::class, 'update']);
+        Route::post('/dictionary/words/{id}', [WordController::class, 'update']);
         Route::delete('/dictionary/words/{id}', [WordController::class, 'destroy']);
 
         // News

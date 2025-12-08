@@ -22,14 +22,13 @@
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Huruf</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Gambar</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Video</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Dibuat</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 </tr>
             </thead>
             <tbody id="lettersTableBody" class="bg-white divide-y divide-gray-200">
                 <tr>
-                    <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                    <td colspan="5" class="px-4 py-8 text-center text-gray-500">
                         <div class="flex items-center justify-center gap-2">
                             <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -45,11 +44,11 @@
 </div>
 
 <!-- Modal -->
-<div id="letterModal" class="hidden shadow-xl fixed inset-0 bg-opacity-50 z-50 flex items-center justify-center p-4">
+<div id="letterModal" class="hidden shadow-xl fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center p-6 border-b">
             <h2 id="modalTitle" class="text-xl font-semibold text-gray-900">Tambah Huruf</h2>
-            <button class="text-gray-400 hover:text-gray-600 close">
+            <button class="text-gray-400 hover:text-gray-600 close cursor-pointer">
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
@@ -59,24 +58,60 @@
                 
                 <div>
                     <label for="huruf" class="block text-sm font-medium text-gray-700 mb-1">Huruf *</label>
-                    <input type="text" id="huruf" maxlength="1" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <input type="text" id="huruf" maxlength="1" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Contoh: A">
                 </div>
 
+                <!-- Image Upload Options -->
                 <div>
-                    <label for="imageUrl" class="block text-sm font-medium text-gray-700 mb-1">URL Gambar *</label>
-                    <input type="url" id="imageUrl" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <p class="mt-1 text-xs text-gray-500">URL gambar huruf (bahasa isyarat)</p>
-                </div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Huruf *</label>
+                    
+                    <!-- Tab Buttons -->
+                    <div class="flex rounded-lg border border-gray-300 mb-3">
+                        <button type="button" id="uploadTabBtn" class="flex-1 px-4 py-2 text-sm font-medium rounded-l-lg bg-white text-gray-700 hover:bg-gray-50 border-r border-gray-300">
+                            <i class="fas fa-upload mr-1"></i> Upload File
+                        </button>
+                        <button type="button" id="urlTabBtn" class="flex-1 px-4 py-2 text-sm font-medium rounded-r-lg bg-indigo-50 text-indigo-600">
+                            <i class="fas fa-link mr-1"></i> URL
+                        </button>
+                    </div>
 
-                {{-- <div>
-                    <label for="videoUrl" class="block text-sm font-medium text-gray-700 mb-1">URL Video</label>
-                    <input type="url" id="videoUrl" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <p class="mt-1 text-xs text-gray-500">URL video tutorial (opsional)</p>
-                </div> --}}
+                    <!-- Upload Tab Content -->
+                    <div id="uploadTab" class="hidden space-y-2">
+                        <div class="flex items-center justify-center w-full">
+                            <label for="imageFile" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                    <p class="mb-2 text-sm text-gray-500">
+                                        <span class="font-semibold">Klik untuk upload</span> atau drag & drop
+                                    </p>
+                                    <p class="text-xs text-gray-500">PNG, JPG, GIF (MAX. 2MB)</p>
+                                </div>
+                                <input id="imageFile" type="file" class="hidden" accept="image/*">
+                            </label>
+                        </div>
+                        <div id="imagePreview" class="hidden">
+                            <img id="previewImg" src="" alt="Preview" class="w-full h-32 object-cover rounded-lg border-2 border-gray-300">
+                            <button type="button" id="removeImageBtn" class="mt-2 text-sm text-red-600 hover:text-red-800 cursor-pointer">
+                                <i class="fas fa-times mr-1"></i> Hapus Gambar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- URL Tab Content -->
+                    <div id="urlTab" class="space-y-2">
+                        <input type="url" id="imageUrl" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="https://example.com/huruf-a.jpg">
+                        <p class="text-xs text-gray-500">
+                            <i class="fas fa-info-circle"></i> Masukkan URL lengkap gambar bahasa isyarat
+                        </p>
+                        <div id="urlImagePreview" class="hidden mt-2">
+                            <img id="urlPreviewImg" src="" alt="Preview" class="w-full h-32 object-cover rounded-lg border-2 border-gray-300">
+                        </div>
+                    </div>
+                </div>
 
                 <div class="flex gap-3 pt-4 border-t">
-                    <button type="button" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition" id="cancelBtn">Batal</button>
-                    <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition" id="saveBtn">Simpan</button>
+                    <button type="button" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition cursor-pointer" id="cancelBtn">Batal</button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition cursor-pointer" id="saveBtn">Simpan</button>
                 </div>
             </form>
         </div>

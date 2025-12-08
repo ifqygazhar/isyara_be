@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Dictionary;
 
 use App\Http\Controllers\Controller;
 use App\Models\KamusKata;
+use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -17,7 +18,7 @@ class WordController extends Controller
         if ($search) {
             $q->where('kata', 'like', "%{$search}%");
         }
-        $data = $q->get();
+        $data = $q->orderBy('kata', 'asc')->get();
 
         if ($data->isEmpty()) {
             return response()->json(['status' => 'fail', 'message' => 'No data found'], 404);
@@ -39,16 +40,25 @@ class WordController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image' => 'required_without:image_url|file|image|max:2048',
-            'image_url' => 'required_without:image|string|max:255|url',
             'kata' => ['required', 'string', 'max:50', Rule::unique('kamus_katas', 'kata')],
+            'image' => 'nullable|file|image|max:2048',
+            'image_url' => 'nullable|string|url',
         ]);
 
+        // Handle image
+        $imageUrl = null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('images', 'public');
+            $path = $request->file('image')->store('words', 'public');
             $imageUrl = Storage::url($path);
-        } else {
+        } elseif ($request->filled('image_url')) {
             $imageUrl = $request->input('image_url');
+        }
+
+        if (! $imageUrl) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Gambar atau URL gambar wajib diisi',
+            ], 422);
         }
 
         $item = KamusKata::create([
@@ -67,18 +77,34 @@ class WordController extends Controller
         }
 
         $request->validate([
-            'image' => 'nullable|file|image|max:2048',
-            'image_url' => 'nullable|string|max:255|url',
             'kata' => ['required', 'string', 'max:50', Rule::unique('kamus_katas', 'kata')->ignore($item->id)],
+            'image' => 'nullable|file|image|max:2048',
+            'image_url' => 'nullable|string|url',
         ]);
 
+        $imageUrl = $item->image_url; // Default: keep existing image
+        $shouldDeleteOldImage = false;
+
+        // Determine new image URL and if old image should be deleted
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('images', 'public');
+            // New file uploaded
+            $path = $request->file('image')->store('words', 'public');
             $imageUrl = Storage::url($path);
+            $shouldDeleteOldImage = true;
         } elseif ($request->filled('image_url')) {
-            $imageUrl = $request->input('image_url');
-        } else {
-            $imageUrl = $item->image_url;
+            // New URL provided
+            $newImageUrl = $request->input('image_url');
+
+            // Only delete old image if the URL is different
+            if ($item->image_url !== $newImageUrl) {
+                $imageUrl = $newImageUrl;
+                $shouldDeleteOldImage = true;
+            }
+        }
+
+        // Delete old image if it's from storage and we're replacing it
+        if ($shouldDeleteOldImage && $item->image_url) {
+            Utils::deleteImageFromStorage($item->image_url);
         }
 
         $item->update([
@@ -96,15 +122,9 @@ class WordController extends Controller
             return response()->json(['status' => 'fail', 'message' => 'Word not found'], 404);
         }
 
-        // jika image berasal dari storage/public (Storage::url), hapus file fisiknya
-        $imageUrl = $item->image_url;
-        if ($imageUrl) {
-            if (preg_match('#/storage/(.*)$#', $imageUrl, $m)) {
-                $path = $m[1]; // path relatif pada disk "public"
-                if (Storage::disk('public')->exists($path)) {
-                    Storage::disk('public')->delete($path);
-                }
-            }
+        // Delete image from storage if exists
+        if ($item->image_url) {
+            Utils::deleteImageFromStorage($item->image_url);
         }
 
         $item->delete();
