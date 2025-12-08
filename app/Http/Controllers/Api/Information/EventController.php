@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Information;
 
 use App\Http\Controllers\Controller;
 use App\Models\EventModel;
+use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,7 +12,7 @@ class EventController extends Controller
 {
     public function index()
     {
-        $data = EventModel::all();
+        $data = EventModel::orderBy('date', 'desc')->get();
 
         if ($data->isEmpty()) {
             return response()->json(['status' => 'fail', 'message' => 'No events found'], 404);
@@ -34,26 +35,43 @@ class EventController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|min:5',
-            'image' => 'required_without:image_url|file|image|max:2048',
-            'image_url' => 'required_without:image|string|url',
+            'title' => 'required|string|min:5|max:255',
+            'image' => 'nullable|file|image|max:2048',
+            'image_url' => 'nullable|string|url',
             'description' => 'required|string|min:10',
+            'date' => 'required|date',
+            'location' => 'required|string|min:3|max:255',
         ]);
 
+        // Handle image
+        $imageUrl = null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('images', 'public');
+            $path = $request->file('image')->store('events', 'public');
             $imageUrl = Storage::url($path);
-        } else {
+        } elseif ($request->filled('image_url')) {
             $imageUrl = $request->input('image_url');
+        }
+
+        if (! $imageUrl) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Image or image URL is required',
+            ], 422);
         }
 
         $item = EventModel::create([
             'title' => $request->input('title'),
             'image_url' => $imageUrl,
             'description' => $request->input('description'),
+            'date' => $request->input('date'),
+            'location' => $request->input('location'),
         ]);
 
-        return response()->json(['status' => 'success', 'message' => 'New event added successfully', 'data' => $item], 201);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Event added successfully',
+            'data' => $item,
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -65,28 +83,52 @@ class EventController extends Controller
         }
 
         $request->validate([
-            'title' => 'required|string|min:5',
+            'title' => 'required|string|min:5|max:255',
             'image' => 'nullable|file|image|max:2048',
             'image_url' => 'nullable|string|url',
             'description' => 'required|string|min:10',
+            'date' => 'required|date',
+            'location' => 'required|string|min:3|max:255',
         ]);
 
+        $imageUrl = $item->image_url; // Default: keep existing image
+        $shouldDeleteOldImage = false;
+
+        // Determine new image URL and if old image should be deleted
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('images', 'public');
+            // New file uploaded
+            $path = $request->file('image')->store('events', 'public');
             $imageUrl = Storage::url($path);
+            $shouldDeleteOldImage = true;
         } elseif ($request->filled('image_url')) {
-            $imageUrl = $request->input('image_url');
-        } else {
-            $imageUrl = $item->image_url;
+            // New URL provided
+            $newImageUrl = $request->input('image_url');
+
+            // Only delete old image if the URL is different
+            if ($item->image_url !== $newImageUrl) {
+                $imageUrl = $newImageUrl;
+                $shouldDeleteOldImage = true;
+            }
+        }
+
+        // Delete old image if it's from storage and we're replacing it
+        if ($shouldDeleteOldImage && $item->image_url) {
+            Utils::deleteImageFromStorage($item->image_url);
         }
 
         $item->update([
             'title' => $request->input('title'),
             'image_url' => $imageUrl,
             'description' => $request->input('description'),
+            'date' => $request->input('date'),
+            'location' => $request->input('location'),
         ]);
 
-        return response()->json(['status' => 'success', 'message' => 'Event updated successfully', 'data' => $item], 200);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Event updated successfully',
+            'data' => $item,
+        ], 200);
     }
 
     public function destroy($id)
@@ -97,14 +139,9 @@ class EventController extends Controller
             return response()->json(['status' => 'fail', 'message' => 'Event not found'], 404);
         }
 
-        $imageUrl = $item->image_url;
-        if ($imageUrl) {
-            if (preg_match('#/storage/(.*)$#', $imageUrl, $m)) {
-                $path = $m[1];
-                if (Storage::disk('public')->exists($path)) {
-                    Storage::disk('public')->delete($path);
-                }
-            }
+        // Delete image from storage if exists
+        if ($item->image_url) {
+            Utils::deleteImageFromStorage($item->image_url);
         }
 
         $item->delete();

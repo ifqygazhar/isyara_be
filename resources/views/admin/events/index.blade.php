@@ -51,7 +51,7 @@
     <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center p-6 border-b border-gray-200">
             <h2 id="modalTitle" class="text-xl font-semibold text-gray-900">Tambah Acara</h2>
-            <button class="close text-gray-400 hover:text-gray-600 text-2xl font-light">&times;</button>
+            <button class="close text-gray-400 hover:text-gray-600 text-2xl font-light cursor-pointer">&times;</button>
         </div>
         <div class="p-6">
             <form id="eventForm">
@@ -59,34 +59,76 @@
                 
                 <div class="mb-4">
                     <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Judul *</label>
-                    <input type="text" id="title" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <input type="text" id="title" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Masukkan judul acara">
                 </div>
 
-                <div class="mb-4">
-                    <label for="imageUrl" class="block text-sm font-medium text-gray-700 mb-2">URL Gambar *</label>
-                    <input type="url" id="imageUrl" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                </div>
-
-                <div class="mb-4">
-                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi *</label>
-                    <textarea id="description" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-vertical"></textarea>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal *</label>
                         <input type="date" id="date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                     </div>
-
                     <div>
                         <label for="location" class="block text-sm font-medium text-gray-700 mb-2">Lokasi *</label>
-                        <input type="text" id="location" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <input type="text" id="location" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Contoh: Jakarta">
                     </div>
                 </div>
 
+                <!-- Image Upload Options -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Acara *</label>
+                    
+                    <!-- Tab Buttons -->
+                    <div class="flex rounded-lg border border-gray-300 mb-3">
+                        <button type="button" id="uploadTabBtn" class="flex-1 px-4 py-2 text-sm font-medium rounded-l-lg bg-white text-gray-700 hover:bg-gray-50 border-r border-gray-300">
+                            <i class="fas fa-upload mr-1"></i> Upload File
+                        </button>
+                        <button type="button" id="urlTabBtn" class="flex-1 px-4 py-2 text-sm font-medium rounded-r-lg bg-indigo-50 text-indigo-600">
+                            <i class="fas fa-link mr-1"></i> URL
+                        </button>
+                    </div>
+
+                    <!-- Upload Tab Content -->
+                    <div id="uploadTab" class="hidden space-y-2">
+                        <div class="flex items-center justify-center w-full">
+                            <label for="imageFile" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                    <p class="mb-2 text-sm text-gray-500">
+                                        <span class="font-semibold">Klik untuk upload</span> atau drag & drop
+                                    </p>
+                                    <p class="text-xs text-gray-500">PNG, JPG, GIF (MAX. 2MB)</p>
+                                </div>
+                                <input id="imageFile" type="file" class="hidden" accept="image/*">
+                            </label>
+                        </div>
+                        <div id="imagePreview" class="hidden">
+                            <img id="previewImg" src="" alt="Preview" class="w-full h-48 object-cover rounded-lg border-2 border-gray-300">
+                            <button type="button" id="removeImageBtn" class="mt-2 text-sm text-red-600 hover:text-red-800 cursor-pointer">
+                                <i class="fas fa-times mr-1"></i> Hapus Gambar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- URL Tab Content -->
+                    <div id="urlTab" class="space-y-2">
+                        <input type="url" id="imageUrl" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="https://example.com/acara.jpg">
+                        <p class="text-xs text-gray-500">
+                            <i class="fas fa-info-circle"></i> Masukkan URL lengkap gambar acara
+                        </p>
+                        <div id="urlImagePreview" class="hidden mt-2">
+                            <img id="urlPreviewImg" src="" alt="Preview" class="w-full h-48 object-cover rounded-lg border-2 border-gray-300">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi *</label>
+                    <textarea id="description" rows="6" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-vertical" placeholder="Masukkan deskripsi acara"></textarea>
+                </div>
+
                 <div class="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-gray-200">
-                    <button type="button" id="cancelBtn" class="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">Batal</button>
-                    <button type="submit" id="saveBtn" class="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-200">Simpan</button>
+                    <button type="button" id="cancelBtn" class="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200 cursor-pointer">Batal</button>
+                    <button type="submit" id="saveBtn" class="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-200 cursor-pointer">Simpan</button>
                 </div>
             </form>
         </div>

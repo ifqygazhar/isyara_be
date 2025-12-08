@@ -15,5 +15,11 @@ class EventModel extends Model
         'title',
         'image_url',
         'description',
+        'date',
+        'location',
+    ];
+
+    protected $casts = [
+        'date' => 'date',
     ];
 }
