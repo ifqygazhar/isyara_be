@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -110,48 +111,48 @@ class UserManagementController extends Controller
         }
 
         $request->validate([
-            'name' => 'nullable|string|max:255',
-            'email' => ['nullable', 'email', Rule::unique('users', 'email')->ignore($id)],
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($id)],
             'password' => 'nullable|string|min:8',
-            'role' => 'nullable|in:admin,user',
+            'role' => 'required|in:admin,user',
             'image' => 'nullable|file|image|max:2048',
             'image_url' => 'nullable|string|url',
         ]);
 
-        // Handle image
-        if ($request->hasFile('image')) {
-            // Delete old image if from storage
-            if ($user->image_url && preg_match('#/storage/(.*)$#', $user->image_url, $m)) {
-                $oldPath = $m[1];
-                if (Storage::disk('public')->exists($oldPath)) {
-                    Storage::disk('public')->delete($oldPath);
-                }
-            }
+        $imageUrl = $user->image_url; // Default: keep existing image
+        $shouldDeleteOldImage = false;
 
+        // Determine new image URL and if old image should be deleted
+        if ($request->hasFile('image')) {
+            // New file uploaded
             $path = $request->file('image')->store('profiles', 'public');
             $imageUrl = Storage::url($path);
+            $shouldDeleteOldImage = true;
         } elseif ($request->filled('image_url')) {
-            $imageUrl = $request->input('image_url');
-        } else {
-            $imageUrl = $user->image_url;
+            // New URL provided
+            $newImageUrl = $request->input('image_url');
+
+            // Only delete old image if the URL is different
+            if ($user->image_url !== $newImageUrl) {
+                $imageUrl = $newImageUrl;
+                $shouldDeleteOldImage = true;
+            }
         }
 
-        $updateData = ['image_url' => $imageUrl];
-
-        if ($request->filled('name')) {
-            $updateData['name'] = $request->input('name');
+        // Delete old image if it's from storage and we're replacing it
+        if ($shouldDeleteOldImage && $user->image_url) {
+            Utils::deleteImageFromStorage($user->image_url);
         }
 
-        if ($request->filled('email')) {
-            $updateData['email'] = $request->input('email');
-        }
+        $updateData = [
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'role' => $request->input('role'),
+            'image_url' => $imageUrl,
+        ];
 
         if ($request->filled('password')) {
             $updateData['password'] = Hash::make($request->input('password'));
-        }
-
-        if ($request->filled('role')) {
-            $updateData['role'] = $request->input('role');
         }
 
         $user->update($updateData);
@@ -183,11 +184,8 @@ class UserManagementController extends Controller
         }
 
         // Delete profile image if from storage
-        if ($user->image_url && preg_match('#/storage/(.*)$#', $user->image_url, $m)) {
-            $path = $m[1];
-            if (Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
-            }
+        if ($user->image_url) {
+            Utils::deleteImageFromStorage($user->image_url);
         }
 
         // Delete all user tokens

@@ -6,11 +6,20 @@ class ApiClient {
     }
 
     async request(endpoint, options = {}) {
+        const headers = {
+            Accept: "application/json",
+            Authorization: `Bearer ${this.token}`,
+        };
+
+        // JANGAN set Content-Type jika body adalah FormData
+        // Browser akan set otomatis dengan boundary yang benar
+        if (!(options.body instanceof FormData)) {
+            headers["Content-Type"] = "application/json";
+        }
+
         const config = {
             headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: `Bearer ${this.token}`,
+                ...headers,
                 ...options.headers,
             },
             ...options,
@@ -39,16 +48,18 @@ class ApiClient {
     }
 
     async post(endpoint, data) {
+        const body = data instanceof FormData ? data : JSON.stringify(data);
         return this.request(endpoint, {
             method: "POST",
-            body: JSON.stringify(data),
+            body: body,
         });
     }
 
     async put(endpoint, data) {
+        const body = data instanceof FormData ? data : JSON.stringify(data);
         return this.request(endpoint, {
             method: "PUT",
-            body: JSON.stringify(data),
+            body: body,
         });
     }
 

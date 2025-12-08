@@ -67,7 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users', [UserManagementController::class, 'index']);
         Route::get('/users/{id}', [UserManagementController::class, 'show']);
         Route::post('/users', [UserManagementController::class, 'store']);
-        Route::put('/users/{id}', [UserManagementController::class, 'update']);
+        Route::post('/users/{id}', [UserManagementController::class, 'update']); // Accept POST with _method=PUT
         Route::delete('/users/{id}', [UserManagementController::class, 'destroy']);
     });
 
