@@ -18,6 +18,11 @@ class LetterController extends Controller
         if ($search) {
             $q->where('huruf', 'like', "%{$search}%");
         }
+
+        if ($request->has('is_bisindo')) {
+            $isBisindo = filter_var($request->query('is_bisindo'), FILTER_VALIDATE_BOOLEAN);
+            $q->where('is_bisindo', $isBisindo);
+        }
         $data = $q->orderBy('huruf', 'asc')->get();
 
         if ($data->isEmpty()) {
@@ -43,6 +48,7 @@ class LetterController extends Controller
             'huruf' => ['required', 'string', 'max:10', Rule::unique('kamus_hurufs', 'huruf')],
             'image' => 'nullable|file|image|max:2048',
             'image_url' => 'nullable|string|url',
+            'is_bisindo' => 'nullable|boolean',
         ]);
 
         // Handle image
@@ -64,6 +70,7 @@ class LetterController extends Controller
         $item = KamusHuruf::create([
             'image_url' => $imageUrl,
             'huruf' => strtoupper($request->input('huruf')),
+            'is_bisindo' => $request->input('is_bisindo', false),
         ]);
 
         return response()->json([
@@ -84,6 +91,7 @@ class LetterController extends Controller
             'huruf' => ['required', 'string', 'max:10', Rule::unique('kamus_hurufs', 'huruf')->ignore($item->id)],
             'image' => 'nullable|file|image|max:2048',
             'image_url' => 'nullable|string|url',
+            'is_bisindo' => 'nullable|boolean',
         ]);
 
         $imageUrl = $item->image_url; // Default: keep existing image
@@ -114,6 +122,7 @@ class LetterController extends Controller
         $item->update([
             'image_url' => $imageUrl,
             'huruf' => strtoupper($request->input('huruf')),
+            'is_bisindo' => $request->input('is_bisindo', $item->is_bisindo),
         ]);
 
         return response()->json([

@@ -18,6 +18,16 @@ class WordsManager extends CrudManager {
     }
 
     setupEventListeners() {
+        // Filter
+        document
+            .getElementById("filterBisindo")
+            ?.addEventListener("change", (e) => {
+                this.loadData(
+                    document.getElementById("searchInput").value,
+                    e.target.value,
+                );
+            });
+
         // Add button
         document.getElementById("addWordBtn")?.addEventListener("click", () => {
             this.openModal("Tambah Kata");
@@ -57,9 +67,11 @@ class WordsManager extends CrudManager {
         document
             .getElementById("searchInput")
             ?.addEventListener("input", (e) => {
+                const filterValue =
+                    document.getElementById("filterBisindo").value;
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    this.filterData(e.target.value);
+                    this.loadData(e.target.value, filterValue);
                 }, 300);
             });
     }
@@ -144,9 +156,25 @@ class WordsManager extends CrudManager {
         });
     }
 
-    async loadData() {
+    async loadData(search = "", filterBisindo = "") {
         try {
-            const response = await this.api.get(this.endpoint);
+            this.showLoading();
+            let url = `${this.endpoint}`;
+            const params = new URLSearchParams();
+
+            if (search) {
+                params.append("search", search);
+            }
+
+            if (filterBisindo !== "") {
+                params.append("is_bisindo", filterBisindo);
+            }
+
+            if (params.toString()) {
+                url += `?${params.toString()}`;
+            }
+
+            const response = await this.api.get(url);
             this.data = response.data || response;
             this.renderData(this.data);
         } catch (error) {
@@ -210,7 +238,7 @@ class WordsManager extends CrudManager {
                     </div>
                 </td>
             </tr>
-        `
+        `,
             )
             .join("");
 
@@ -241,7 +269,7 @@ class WordsManager extends CrudManager {
                             </div>
                             <p class="text-xs text-gray-400 mt-2">
                                 Dibuat: ${new Date(
-                                    word.created_at
+                                    word.created_at,
                                 ).toLocaleDateString("id-ID", {
                                     year: "numeric",
                                     month: "short",
@@ -267,7 +295,7 @@ class WordsManager extends CrudManager {
                         </div>
                     </div>
                 </div>
-            `
+            `,
                 )
                 .join("");
         }
@@ -301,7 +329,7 @@ class WordsManager extends CrudManager {
 
     filterData(searchTerm) {
         const filteredData = this.data.filter((word) =>
-            word.kata?.toLowerCase().includes(searchTerm.toLowerCase())
+            word.kata?.toLowerCase().includes(searchTerm.toLowerCase()),
         );
         this.renderData(filteredData);
     }
@@ -312,6 +340,7 @@ class WordsManager extends CrudManager {
 
         document.getElementById("wordId").value = item.id;
         document.getElementById("kata").value = item.kata;
+        document.getElementById("is_bisindo").checked = item.is_bisindo == 1;
 
         // Reset image fields
         this.selectedImageFile = null;
@@ -358,6 +387,10 @@ class WordsManager extends CrudManager {
             // SELALU gunakan FormData untuk support file upload
             const formData = new FormData();
             formData.append("kata", kata);
+            formData.append(
+                "is_bisindo",
+                document.getElementById("is_bisindo").checked ? 1 : 0,
+            );
 
             // Handle image based on mode
             if (this.imageMode === "upload" && this.selectedImageFile) {
@@ -420,6 +453,7 @@ class WordsManager extends CrudManager {
         if (title === "Tambah Kata") {
             document.getElementById("wordForm").reset();
             document.getElementById("wordId").value = "";
+            document.getElementById("is_bisindo").checked = false;
             document.getElementById("imagePreview").classList.add("hidden");
             document.getElementById("urlImagePreview").classList.add("hidden");
             this.selectedImageFile = null;
@@ -442,8 +476,8 @@ class WordsManager extends CrudManager {
             type === "success"
                 ? "bg-green-500"
                 : type === "error"
-                ? "bg-red-500"
-                : "bg-blue-500"
+                  ? "bg-red-500"
+                  : "bg-blue-500"
         }`;
         toast.textContent = message;
         document.body.appendChild(toast);

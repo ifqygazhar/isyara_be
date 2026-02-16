@@ -15,5 +15,6 @@ class KamusHuruf extends Model
         'image_url',
         'huruf',
         'image',
+        'is_bisindo',
     ];
 }

@@ -17,6 +17,16 @@ class LettersManager extends CrudManager {
     }
 
     setupEventListeners() {
+        // Filter
+        document
+            .getElementById("filterBisindo")
+            ?.addEventListener("change", (e) => {
+                this.loadData(
+                    document.getElementById("searchInput").value,
+                    e.target.value,
+                );
+            });
+
         // Add button
         document
             .getElementById("addLetterBtn")
@@ -63,9 +73,11 @@ class LettersManager extends CrudManager {
         document
             .getElementById("searchInput")
             ?.addEventListener("input", (e) => {
+                const filterValue =
+                    document.getElementById("filterBisindo").value;
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    this.filterData(e.target.value);
+                    this.loadData(e.target.value, filterValue);
                 }, 300);
             });
     }
@@ -150,9 +162,25 @@ class LettersManager extends CrudManager {
         });
     }
 
-    async loadData() {
+    async loadData(search = "", filterBisindo = "") {
         try {
-            const response = await this.api.get(this.endpoint);
+            this.showLoading();
+            let url = `${this.endpoint}`;
+            const params = new URLSearchParams();
+
+            if (search) {
+                params.append("search", search);
+            }
+
+            if (filterBisindo !== "") {
+                params.append("is_bisindo", filterBisindo);
+            }
+
+            if (params.toString()) {
+                url += `?${params.toString()}`;
+            }
+
+            const response = await this.api.get(url);
             this.data = response.data || response;
             this.renderData(this.data);
         } catch (error) {
@@ -214,7 +242,7 @@ class LettersManager extends CrudManager {
                     </div>
                 </td>
             </tr>
-        `
+        `,
             )
             .join("");
     }
@@ -235,7 +263,7 @@ class LettersManager extends CrudManager {
 
     filterData(searchTerm) {
         const filteredData = this.data.filter((letter) =>
-            letter.huruf?.toLowerCase().includes(searchTerm.toLowerCase())
+            letter.huruf?.toLowerCase().includes(searchTerm.toLowerCase()),
         );
         this.renderData(filteredData);
     }
@@ -246,6 +274,7 @@ class LettersManager extends CrudManager {
 
         document.getElementById("letterId").value = item.id;
         document.getElementById("huruf").value = item.huruf;
+        document.getElementById("is_bisindo").checked = item.is_bisindo == 1;
 
         // Reset image fields
         this.selectedImageFile = null;
@@ -295,6 +324,10 @@ class LettersManager extends CrudManager {
             // SELALU gunakan FormData untuk support file upload
             const formData = new FormData();
             formData.append("huruf", huruf);
+            formData.append(
+                "is_bisindo",
+                document.getElementById("is_bisindo").checked ? 1 : 0,
+            );
 
             // Handle image based on mode
             if (this.imageMode === "upload" && this.selectedImageFile) {
@@ -357,6 +390,7 @@ class LettersManager extends CrudManager {
         if (title === "Tambah Huruf") {
             document.getElementById("letterForm").reset();
             document.getElementById("letterId").value = "";
+            document.getElementById("is_bisindo").checked = false;
             document.getElementById("imagePreview").classList.add("hidden");
             document.getElementById("urlImagePreview").classList.add("hidden");
             this.selectedImageFile = null;
@@ -379,8 +413,8 @@ class LettersManager extends CrudManager {
             type === "success"
                 ? "bg-green-500"
                 : type === "error"
-                ? "bg-red-500"
-                : "bg-blue-500"
+                  ? "bg-red-500"
+                  : "bg-blue-500"
         }`;
         toast.textContent = message;
         document.body.appendChild(toast);

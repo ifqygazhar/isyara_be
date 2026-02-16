@@ -15,5 +15,6 @@ class KamusKata extends Model
         'image_url',
         'kata',
         'image',
+        'is_bisindo',
     ];
 }
