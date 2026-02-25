@@ -5,9 +5,6 @@ use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\Dictionary\LetterController;
 use App\Http\Controllers\Api\Dictionary\WordController;
 use App\Http\Controllers\Api\MessageController;
-use App\Http\Controllers\Api\Information\CommunityController;
-use App\Http\Controllers\Api\Information\EventController;
-use App\Http\Controllers\Api\Information\NewsController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\Quiz\LevelController;
 use App\Http\Controllers\Api\Quiz\QuestionController;
@@ -16,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/contact', [ContactUsController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -34,21 +30,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/dictionary/words/{id}', [WordController::class, 'update']);
         Route::delete('/dictionary/words/{id}', [WordController::class, 'destroy']);
 
-        // News
-        Route::post('/information/news', [NewsController::class, 'store']);
-        Route::post('/information/news/{id}', [NewsController::class, 'update']);
-        Route::delete('/information/news/{id}', [NewsController::class, 'destroy']);
-
-        // Events
-        Route::post('/information/events', [EventController::class, 'store']);
-        Route::post('/information/events/{id}', [EventController::class, 'update']);
-        Route::delete('/information/events/{id}', [EventController::class, 'destroy']);
-
-        // Community
-        Route::post('/information/community', [CommunityController::class, 'store']);
-        Route::post('/information/community/{id}', [CommunityController::class, 'update']);
-        Route::delete('/information/community/{id}', [CommunityController::class, 'destroy']);
-
         // Levels (Admin only: create, update, delete)
         Route::post('/quiz/levels', [LevelController::class, 'store']);
         Route::post('/quiz/levels/{levelId}', [LevelController::class, 'update']);
@@ -58,11 +39,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/quiz/levels/{levelId}/questions', [QuestionController::class, 'store']);
         Route::post('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'update']);
         Route::delete('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'destroy']);
-
-        // Contact Us (Admin: view all, view single, delete)
-        Route::get('/contact', [ContactUsController::class, 'index']);
-        Route::get('/contact/{id}', [ContactUsController::class, 'show']);
-        Route::delete('/contact/{id}', [ContactUsController::class, 'destroy']);
 
         // User Management (Admin only)
         Route::get('/users', [UserManagementController::class, 'index']);
@@ -87,16 +63,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dictionary/words/{id}', [WordController::class, 'show']);
     Route::post('/dictionary/words/{id}/learning-status', [WordController::class, 'toggleLearningStatus']);
 
-    // News
-    Route::get('/information/news', [NewsController::class, 'index']);
-    Route::get('/information/news/{id}', [NewsController::class, 'show']);
-    // Events
-    Route::get('/information/events', [EventController::class, 'index']);
-    Route::get('/information/events/{id}', [EventController::class, 'show']);
-    // Community
-    Route::get('/information/community', [CommunityController::class, 'index']);
-    Route::get('/information/community/{id}', [CommunityController::class, 'show']);
-
     // Levels (Read)
     Route::get('/quiz/levels', [LevelController::class, 'index']);
     Route::get('/quiz/levels/{levelId}', [LevelController::class, 'show']);
@@ -108,8 +74,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Check Answer & Completion (User)
     Route::post('/quiz/levels/{levelId}/questions/{questionId}/answer', [QuestionController::class, 'checkAnswer']);
     Route::get('/quiz/levels/{levelId}/completion', [QuestionController::class, 'checkCompletion']);
-
-    Route::post('/contact', [ContactUsController::class, 'store']);
 
     // Messages
     Route::get('/messages', [MessageController::class, 'index']);
