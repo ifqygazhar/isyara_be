@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\Dictionary\LetterController;
 use App\Http\Controllers\Api\Dictionary\WordController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\Information\CommunityController;
 use App\Http\Controllers\Api\Information\EventController;
 use App\Http\Controllers\Api\Information\NewsController;
@@ -80,8 +81,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/dictionary/letters', [LetterController::class, 'index']);
     Route::get('/dictionary/letters/{id}', [LetterController::class, 'show']);
+    Route::post('/dictionary/letters/{id}/learning-status', [LetterController::class, 'toggleLearningStatus']);
+    
     Route::get('/dictionary/words', [WordController::class, 'index']);
     Route::get('/dictionary/words/{id}', [WordController::class, 'show']);
+    Route::post('/dictionary/words/{id}/learning-status', [WordController::class, 'toggleLearningStatus']);
 
     // News
     Route::get('/information/news', [NewsController::class, 'index']);
@@ -106,4 +110,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/quiz/levels/{levelId}/completion', [QuestionController::class, 'checkCompletion']);
 
     Route::post('/contact', [ContactUsController::class, 'store']);
+
+    // Messages
+    Route::get('/messages', [MessageController::class, 'index']);
+    Route::post('/messages', [MessageController::class, 'store']);
 });

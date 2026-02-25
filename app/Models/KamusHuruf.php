@@ -17,4 +17,11 @@ class KamusHuruf extends Model
         'image',
         'is_bisindo',
     ];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_kamus_hurufs')
+                    ->withPivot('is_knowing')
+                    ->withTimestamps();
+    }
 }

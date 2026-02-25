@@ -1,0 +1,116 @@
+erDiagram
+    %% Hubungan Level ke Konten (Level di atas)
+    levels ||--o{ questions : "berisi"
+    levels ||--o{ user_progress : "dikelompokan"
+    
+    %% Hubungan User ke Progres & Jawaban
+    users ||--o{ user_progress : "mencatat"
+    users ||--o{ user_answers : "menjawab"
+    
+    %% Hubungan User ke Kamus (Pivot Table untuk is_knowing)
+    users ||--o{ user_kamus_hurufs : "mempelajari"
+    kamus_hurufs ||--o{ user_kamus_hurufs : "dipelajari"
+    
+    users ||--o{ user_kamus_katas : "mempelajari"
+    kamus_katas ||--o{ user_kamus_katas : "dipelajari"
+
+    %% Hubungan User ke Messages
+    users ||--o{ messages : "mengirim"
+    
+    %% Hubungan antar detail (Bawah)
+    questions ||--o{ user_answers : "memiliki"
+
+    users {
+        bigint id PK
+        string name
+        string email
+        timestamp email_verified_at
+        enum role "admin, user"
+        string password
+        string remember_token
+        string image_url
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    levels {
+        bigint id PK
+        string name
+        string title
+        string image_url
+        text description
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    user_progress {
+        bigint id PK
+        bigint user_id FK
+        bigint level_id FK
+        enum status "completed, in_progress"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    questions {
+        bigint id PK
+        bigint level_id PK, FK
+        string image_url
+        text question
+        string correct_option
+        json options
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    user_answers {
+        bigint user_id PK, FK
+        bigint level_id PK, FK
+        bigint question_id PK, FK
+        boolean is_correct
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    kamus_hurufs {
+        bigint id PK
+        string image_url
+        string huruf
+        boolean is_bisindo
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    %% Tabel Pivot untuk Progres Kamus Huruf
+    user_kamus_hurufs {
+        bigint user_id PK, FK
+        bigint kamus_huruf_id PK, FK
+        boolean is_knowing
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    kamus_katas {
+        bigint id PK
+        string image_url
+        string kata
+        boolean is_bisindo
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    %% Tabel Pivot untuk Progres Kamus Kata
+    user_kamus_katas {
+        bigint user_id PK, FK
+        bigint kamus_kata_id PK, FK
+        boolean is_knowing
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    messages {
+        bigint id PK    
+        bigint user_id FK    
+        text message
+        timestamp created_at
+    }

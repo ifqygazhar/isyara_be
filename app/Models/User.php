@@ -45,4 +45,23 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function kamusHurufs()
+    {
+        return $this->belongsToMany(KamusHuruf::class, 'user_kamus_hurufs')
+                    ->withPivot('is_knowing')
+                    ->withTimestamps();
+    }
+
+    public function kamusKatas()
+    {
+        return $this->belongsToMany(KamusKata::class, 'user_kamus_katas')
+                    ->withPivot('is_knowing')
+                    ->withTimestamps();
+    }
 }

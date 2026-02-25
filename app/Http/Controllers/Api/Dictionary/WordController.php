@@ -8,6 +8,7 @@ use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class WordController extends Controller
 {
@@ -29,6 +30,17 @@ class WordController extends Controller
             return response()->json(['status' => 'fail', 'message' => 'No data found'], 404);
         }
 
+        $user = Auth::guard('sanctum')->user();
+        $knownIds = [];
+        if ($user) {
+            $knownIds = $user->kamusKatas()->wherePivot('is_knowing', true)->pluck('kamus_katas.id')->toArray();
+        }
+
+        $data->transform(function ($item) use ($knownIds) {
+            $item->is_knowing = in_array($item->id, $knownIds);
+            return $item;
+        });
+
         return response()->json(['status' => 'success', 'message' => 'Words retrieved successfully', 'data' => $data], 200);
     }
 
@@ -37,6 +49,12 @@ class WordController extends Controller
         $item = KamusKata::find($id);
         if (! $item) {
             return response()->json(['status' => 'fail', 'message' => 'Word not found'], 404);
+        }
+
+        $user = Auth::guard('sanctum')->user();
+        $item->is_knowing = false;
+        if ($user) {
+            $item->is_knowing = $user->kamusKatas()->where('kamus_kata_id', $item->id)->wherePivot('is_knowing', true)->exists();
         }
 
         return response()->json(['status' => 'success', 'message' => 'Word retrieved successfully', 'data' => $item], 200);
@@ -139,5 +157,38 @@ class WordController extends Controller
         $item->delete();
 
         return response()->json(['status' => 'success', 'message' => 'Word deleted successfully'], 200);
+    }
+
+    public function toggleLearningStatus(Request $request, $id)
+    {
+        $user = Auth::guard('sanctum')->user();
+        if (!$user) {
+            return response()->json(['status' => 'fail', 'message' => 'Unauthorized'], 401);
+        }
+
+        $item = KamusKata::find($id);
+        if (! $item) {
+            return response()->json(['status' => 'fail', 'message' => 'Word not found'], 404);
+        }
+
+        $request->validate([
+            'is_knowing' => 'required|boolean'
+        ]);
+
+        $isKnowing = $request->input('is_knowing');
+
+        // Update or insert pivot
+        $user->kamusKatas()->syncWithoutDetaching([
+            $item->id => ['is_knowing' => $isKnowing]
+        ]);
+
+        return response()->json([
+            'status' => 'success', 
+            'message' => 'Learning status updated successfully', 
+            'data' => [
+                'kamus_kata_id' => $item->id,
+                'is_knowing' => $isKnowing
+            ]
+        ], 200);
     }
 }

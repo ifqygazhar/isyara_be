@@ -8,6 +8,7 @@ use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class LetterController extends Controller
 {
@@ -29,6 +30,17 @@ class LetterController extends Controller
             return response()->json(['status' => 'fail', 'message' => 'Tidak ada data ditemukan'], 404);
         }
 
+        $user = Auth::guard('sanctum')->user();
+        $knownIds = [];
+        if ($user) {
+            $knownIds = $user->kamusHurufs()->wherePivot('is_knowing', true)->pluck('kamus_hurufs.id')->toArray();
+        }
+
+        $data->transform(function ($item) use ($knownIds) {
+            $item->is_knowing = in_array($item->id, $knownIds);
+            return $item;
+        });
+
         return response()->json(['status' => 'success', 'message' => 'Huruf berhasil diambil', 'data' => $data], 200);
     }
 
@@ -37,6 +49,12 @@ class LetterController extends Controller
         $item = KamusHuruf::find($id);
         if (! $item) {
             return response()->json(['status' => 'fail', 'message' => 'Huruf tidak ditemukan'], 404);
+        }
+
+        $user = Auth::guard('sanctum')->user();
+        $item->is_knowing = false;
+        if ($user) {
+            $item->is_knowing = $user->kamusHurufs()->where('kamus_huruf_id', $item->id)->wherePivot('is_knowing', true)->exists();
         }
 
         return response()->json(['status' => 'success', 'message' => 'Huruf berhasil diambil', 'data' => $item], 200);
@@ -147,5 +165,38 @@ class LetterController extends Controller
         $item->delete();
 
         return response()->json(['status' => 'success', 'message' => 'Huruf berhasil dihapus'], 200);
+    }
+
+    public function toggleLearningStatus(Request $request, $id)
+    {
+        $user = Auth::guard('sanctum')->user();
+        if (!$user) {
+            return response()->json(['status' => 'fail', 'message' => 'Unauthorized'], 401);
+        }
+
+        $item = KamusHuruf::find($id);
+        if (! $item) {
+            return response()->json(['status' => 'fail', 'message' => 'Huruf tidak ditemukan'], 404);
+        }
+
+        $request->validate([
+            'is_knowing' => 'required|boolean'
+        ]);
+
+        $isKnowing = $request->input('is_knowing');
+
+        // Update or insert pivot
+        $user->kamusHurufs()->syncWithoutDetaching([
+            $item->id => ['is_knowing' => $isKnowing]
+        ]);
+
+        return response()->json([
+            'status' => 'success', 
+            'message' => 'Status pembelajaran berhasil diperbarui', 
+            'data' => [
+                'kamus_huruf_id' => $item->id,
+                'is_knowing' => $isKnowing
+            ]
+        ], 200);
     }
 }
