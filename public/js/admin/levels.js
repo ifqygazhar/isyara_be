@@ -360,7 +360,7 @@ class LevelsManager extends CrudManager {
                     </div>
                 </td>
             </tr>
-        `
+        `,
             )
             .join("");
     }
@@ -385,7 +385,7 @@ class LevelsManager extends CrudManager {
                 (item.title || item.name)
                     ?.toLowerCase()
                     .includes(searchTerm.toLowerCase()) ||
-                String(item.id).includes(searchTerm)
+                String(item.id).includes(searchTerm),
         );
         this.renderData(filteredData);
     }
@@ -507,7 +507,7 @@ class LevelsManager extends CrudManager {
     async deleteItem(id) {
         if (
             !confirm(
-                "Apakah Anda yakin? Ini juga akan menghapus semua pertanyaan di level ini!"
+                "Apakah Anda yakin? Ini juga akan menghapus semua pertanyaan di level ini!",
             )
         )
             return;
@@ -538,7 +538,7 @@ class LevelsManager extends CrudManager {
     async loadQuestions() {
         try {
             const response = await this.api.get(
-                `/quiz/levels/${this.currentLevelId}/questions`
+                `/quiz/levels/${this.currentLevelId}/questions`,
             );
             this.questions = response.data || response;
             this.renderQuestions();
@@ -617,7 +617,7 @@ class LevelsManager extends CrudManager {
                     </div>
                 </div>
             </div>
-        `
+        `,
             )
             .join("");
     }
@@ -645,6 +645,12 @@ class LevelsManager extends CrudManager {
             document
                 .getElementById("questionUrlImagePreview")
                 .classList.add("hidden");
+
+            document.getElementById("optionA").value = "";
+            document.getElementById("optionB").value = "";
+            document.getElementById("optionC").value = "";
+            document.getElementById("optionD").value = "";
+            document.getElementById("isCorrectA").checked = true;
         }
 
         modal.classList.remove("hidden");
@@ -657,8 +663,29 @@ class LevelsManager extends CrudManager {
         document.getElementById("questionId").value = question.id;
         document.getElementById("questionLevelId").value = this.currentLevelId;
         document.getElementById("questionText").value = question.question;
-        document.getElementById("correctAnswer").value =
-            question.correct_option || question.correct_answer;
+
+        const opts = question.options || [];
+        document.getElementById("optionA").value = opts[0] || "";
+        document.getElementById("optionB").value = opts[1] || "";
+        document.getElementById("optionC").value = opts[2] || "";
+        document.getElementById("optionD").value = opts[3] || "";
+
+        const correct = question.correct_option || question.correct_answer;
+        if (correct && correct === document.getElementById("optionB").value) {
+            document.getElementById("isCorrectB").checked = true;
+        } else if (
+            correct &&
+            correct === document.getElementById("optionC").value
+        ) {
+            document.getElementById("isCorrectC").checked = true;
+        } else if (
+            correct &&
+            correct === document.getElementById("optionD").value
+        ) {
+            document.getElementById("isCorrectD").checked = true;
+        } else {
+            document.getElementById("isCorrectA").checked = true;
+        }
 
         // Reset question image fields
         this.selectedQuestionImageFile = null;
@@ -700,9 +727,22 @@ class LevelsManager extends CrudManager {
             const questionText = document
                 .getElementById("questionText")
                 .value.trim();
-            const correctAnswer = document
-                .getElementById("correctAnswer")
-                .value.trim();
+            const optionA = document.getElementById("optionA").value.trim();
+            const optionB = document.getElementById("optionB").value.trim();
+            const optionC = document.getElementById("optionC").value.trim();
+            const optionD = document.getElementById("optionD").value.trim();
+
+            let correctAnswer = "";
+            const selectedRadio = document.querySelector(
+                'input[name="correctOption"]:checked',
+            );
+            if (selectedRadio) {
+                const selectedVal = selectedRadio.value;
+                if (selectedVal === "A") correctAnswer = optionA;
+                if (selectedVal === "B") correctAnswer = optionB;
+                if (selectedVal === "C") correctAnswer = optionC;
+                if (selectedVal === "D") correctAnswer = optionD;
+            }
 
             // Validasi
             if (!questionText) {
@@ -711,8 +751,17 @@ class LevelsManager extends CrudManager {
                 return;
             }
 
+            if (!optionA || !optionB || !optionC || !optionD) {
+                this.showToast("Semua pilihan jawaban wajib diisi", "error");
+                this.resetQuestionSubmitButton(submitBtn);
+                return;
+            }
+
             if (!correctAnswer) {
-                this.showToast("Jawaban benar wajib diisi", "error");
+                this.showToast(
+                    "Pilih salah satu jawaban yang benar (radio button)",
+                    "error",
+                );
                 this.resetQuestionSubmitButton(submitBtn);
                 return;
             }
@@ -721,8 +770,10 @@ class LevelsManager extends CrudManager {
             const formData = new FormData();
             formData.append("question", questionText);
             formData.append("correct_option", correctAnswer);
-            // FIX: Kirim array sebagai JSON string
-            formData.append("options[]", correctAnswer);
+            formData.append("options[]", optionA);
+            formData.append("options[]", optionB);
+            formData.append("options[]", optionC);
+            formData.append("options[]", optionD);
 
             // Handle image based on mode
             if (
@@ -742,14 +793,14 @@ class LevelsManager extends CrudManager {
             if (questionId) {
                 await this.api.post(
                     `/quiz/levels/${levelId}/questions/${questionId}`,
-                    formData
+                    formData,
                 );
                 this.showToast("Pertanyaan berhasil diperbarui", "success");
             } else {
                 // CREATE
                 await this.api.post(
                     `/quiz/levels/${levelId}/questions`,
-                    formData
+                    formData,
                 );
                 this.showToast("Pertanyaan berhasil ditambahkan", "success");
             }
@@ -761,7 +812,7 @@ class LevelsManager extends CrudManager {
             console.error("Submit question error:", error);
             this.showToast(
                 "Gagal menyimpan pertanyaan: " + error.message,
-                "error"
+                "error",
             );
         } finally {
             this.resetQuestionSubmitButton(submitBtn);
@@ -782,7 +833,7 @@ class LevelsManager extends CrudManager {
 
         try {
             await this.api.delete(
-                `/quiz/levels/${this.currentLevelId}/questions/${questionId}`
+                `/quiz/levels/${this.currentLevelId}/questions/${questionId}`,
             );
             this.showToast("Pertanyaan berhasil dihapus", "success");
             await this.loadQuestions();
@@ -790,7 +841,7 @@ class LevelsManager extends CrudManager {
         } catch (error) {
             this.showToast(
                 "Gagal menghapus pertanyaan: " + error.message,
-                "error"
+                "error",
             );
         }
     }
@@ -843,8 +894,8 @@ class LevelsManager extends CrudManager {
             type === "success"
                 ? "bg-green-500"
                 : type === "error"
-                ? "bg-red-500"
-                : "bg-blue-500"
+                  ? "bg-red-500"
+                  : "bg-blue-500"
         }`;
         toast.textContent = message;
         document.body.appendChild(toast);
