@@ -19,5 +19,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('letters', fn () => view('admin.letters.index'))->name('letters');
         Route::get('words', fn () => view('admin.words.index'))->name('words');
         Route::get('levels', fn () => view('admin.levels.index'))->name('levels');
+        Route::get('scores', fn () => view('admin.scores.index'))->name('scores');
     });
 });

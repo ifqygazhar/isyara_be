@@ -40,6 +40,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'update']);
         Route::delete('/quiz/levels/{levelId}/questions/{questionId}', [QuestionController::class, 'destroy']);
 
+        // Scores (Admin)
+        Route::get('/admin/quiz/scores', [\App\Http\Controllers\Api\Quiz\AdminScoreController::class, 'index']);
+        Route::delete('/admin/quiz/scores/{userId}/{levelId}', [\App\Http\Controllers\Api\Quiz\AdminScoreController::class, 'destroy']);
+        
         // User Management (Admin only)
         Route::get('/users', [UserManagementController::class, 'index']);
         Route::get('/users/{id}', [UserManagementController::class, 'show']);
@@ -50,6 +54,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- Bisa Semua Role ---
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Scores (User)
+    Route::get('/quiz/scores', [\App\Http\Controllers\Api\Quiz\ScoreController::class, 'index']);
+    Route::get('/quiz/levels/{levelId}/score', [\App\Http\Controllers\Api\Quiz\ScoreController::class, 'show']);
 
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update']);

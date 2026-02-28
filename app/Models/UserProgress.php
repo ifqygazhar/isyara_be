@@ -19,6 +19,9 @@ class UserProgress extends Model
         'user_id',
         'level_id',
         'status',
+        'score',
+        'correct_answers',
+        'total_questions',
     ];
 
     public function user()

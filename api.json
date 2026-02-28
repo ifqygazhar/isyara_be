@@ -36,6 +36,117 @@
                 }
             }
         },
+        "/admin/quiz/scores": {
+            "get": {
+                "operationId": "adminScore.index",
+                "summary": "Get all quiz scores of all users for Admin",
+                "tags": ["AdminScore"],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "const": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "All user scores retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/UserProgress"
+                                            }
+                                        }
+                                    },
+                                    "required": ["status", "message", "data"]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/quiz/scores/{userId}/{levelId}": {
+            "delete": {
+                "operationId": "adminScore.destroy",
+                "summary": "Reset/Delete a user's progress and score",
+                "tags": ["AdminScore"],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "levelId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "const": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Score and progress reset successfully"
+                                        }
+                                    },
+                                    "required": ["status", "message"]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "const": "fail"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Score record not found"
+                                        }
+                                    },
+                                    "required": ["status", "message"]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "operationId": "auth.login",
@@ -1920,12 +2031,24 @@
                                         },
                                         "isCorrect": {
                                             "type": "boolean"
+                                        },
+                                        "score": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "enum": [0]
+                                                }
+                                            ]
                                         }
                                     },
                                     "required": [
                                         "status",
                                         "message",
-                                        "isCorrect"
+                                        "isCorrect",
+                                        "score"
                                     ]
                                 }
                             }
@@ -2040,6 +2163,140 @@
                                             "required": ["status", "message"]
                                         }
                                     ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/quiz/scores": {
+            "get": {
+                "operationId": "score.index",
+                "summary": "Get all quiz scores for the authenticated user",
+                "tags": ["Score"],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "const": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Scores retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/UserProgress"
+                                            }
+                                        }
+                                    },
+                                    "required": ["status", "message", "data"]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "const": "fail"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "No scores found"
+                                        }
+                                    },
+                                    "required": ["status", "message"]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/quiz/levels/{levelId}/score": {
+            "get": {
+                "operationId": "score.show",
+                "summary": "Get specific level score for the authenticated user",
+                "tags": ["Score"],
+                "parameters": [
+                    {
+                        "name": "levelId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "const": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Score retrieved successfully"
+                                        },
+                                        "data": {
+                                            "anyOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/UserProgress"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": ["status", "message", "data"]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "const": "fail"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Score not found for this level"
+                                        }
+                                    },
+                                    "required": ["status", "message"]
                                 }
                             }
                         }
@@ -3112,6 +3369,52 @@
                     "updated_at"
                 ],
                 "title": "User"
+            },
+            "UserProgress": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "type": "integer"
+                    },
+                    "level_id": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "score": {
+                        "type": "integer"
+                    },
+                    "correct_answers": {
+                        "type": "integer"
+                    },
+                    "total_questions": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": ["string", "null"],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": ["string", "null"],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "user_id",
+                    "level_id",
+                    "status",
+                    "score",
+                    "correct_answers",
+                    "total_questions",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "UserProgress"
             }
         },
         "responses": {

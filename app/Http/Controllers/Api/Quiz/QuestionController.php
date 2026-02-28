@@ -219,10 +219,31 @@ class QuestionController extends Controller
             ['is_correct' => $isCorrect]
         );
 
+        // Update score in UserProgress immediately
+        $questions = Question::where('level_id', $levelId)->pluck('id');
+        $userAnswers = UserAnswer::where('user_id', $userId)->whereIn('question_id', $questions)->get();
+
+        $totalQuestions = $questions->count();
+        $correctAnswers = $userAnswers->where('is_correct', true)->count();
+        $score = $totalQuestions > 0 ? round(($correctAnswers / $totalQuestions) * 100) : 0;
+        $allCorrect = $totalQuestions > 0 && $correctAnswers === $totalQuestions;
+        $status = $allCorrect ? 'completed' : 'in_progress';
+
+        UserProgress::updateOrCreate(
+            ['user_id' => $userId, 'level_id' => $levelId],
+            [
+                'status' => $status,
+                'score' => $score,
+                'correct_answers' => $correctAnswers,
+                'total_questions' => $totalQuestions
+            ]
+        );
+
         return response()->json([
             'status' => 'success',
             'message' => $isCorrect ? 'Correct answer' : 'Wrong answer',
             'isCorrect' => $isCorrect,
+            'score' => $score // Optionally return the updated score
         ], 200);
     }
 
@@ -240,13 +261,22 @@ class QuestionController extends Controller
             ->whereIn('question_id', $questions)
             ->get();
 
-        $allCorrect = $userAnswers->count() === $questions->count() && $userAnswers->every(fn ($answer) => $answer->is_correct);
+        $totalQuestions = $questions->count();
+        $correctAnswers = $userAnswers->where('is_correct', true)->count();
+        $score = $totalQuestions > 0 ? round(($correctAnswers / $totalQuestions) * 100) : 0;
+
+        $allCorrect = $totalQuestions > 0 && $correctAnswers === $totalQuestions;
 
         $status = $allCorrect ? 'completed' : 'in_progress';
 
         UserProgress::updateOrCreate(
             ['user_id' => $userId, 'level_id' => $levelId],
-            ['status' => $status]
+            [
+                'status' => $status,
+                'score' => $score,
+                'correct_answers' => $correctAnswers,
+                'total_questions' => $totalQuestions
+            ]
         );
 
         $level = Level::find($levelId);

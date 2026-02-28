@@ -38,6 +38,10 @@
                     class="block px-6 py-3 hover:bg-indigo-600 {{ request()->routeIs('admin.levels*') ? 'bg-indigo-600' : '' }}">
                     <i class="fas fa-layer-group mr-2"></i> Level Kuis
                 </a>
+                <a href="{{ route('admin.scores') }}"
+                    class="block px-6 py-3 hover:bg-indigo-600 {{ request()->routeIs('admin.scores*') ? 'bg-indigo-600' : '' }}">
+                    <i class="fas fa-star mr-2"></i> Nilai Siswa
+                </a>
                 <form action="{{ route('admin.logout') }}" method="POST" class="px-6 py-3">
                     @csrf
                     <button type="submit" class="w-full text-left hover:bg-indigo-600 px-0">
