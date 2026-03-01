@@ -48,6 +48,9 @@ erDiagram
         bigint user_id FK
         bigint level_id FK
         enum status "completed, in_progress"
+        int score
+        int correct_answers
+        int total_questions
         timestamp created_at
         timestamp updated_at
     }

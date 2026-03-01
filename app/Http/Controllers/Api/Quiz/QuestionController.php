@@ -214,14 +214,16 @@ class QuestionController extends Controller
 
         $isCorrect = $question->correct_option === $request->input('selected_option');
 
-        UserAnswer::updateOrCreate(
+        UserAnswer::updateOrInsert(
             ['user_id' => $userId, 'question_id' => $questionId, 'level_id' => $levelId],
             ['is_correct' => $isCorrect]
         );
 
         // Update score in UserProgress immediately
         $questions = Question::where('level_id', $levelId)->pluck('id');
-        $userAnswers = UserAnswer::where('user_id', $userId)->whereIn('question_id', $questions)->get();
+        $userAnswers = UserAnswer::where('user_id', $userId)
+            ->where('level_id', $levelId)
+            ->whereIn('question_id', $questions)->get();
 
         $totalQuestions = $questions->count();
         $correctAnswers = $userAnswers->where('is_correct', true)->count();
@@ -258,6 +260,7 @@ class QuestionController extends Controller
         }
 
         $userAnswers = UserAnswer::where('user_id', $userId)
+            ->where('level_id', $levelId)
             ->whereIn('question_id', $questions)
             ->get();
 
