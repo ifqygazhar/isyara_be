@@ -6,7 +6,7 @@
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:8000/api"
+            "url": "http://localhost/api"
         }
     ],
     "paths": {
@@ -25,7 +25,9 @@
                                             "const": "Halo Admin!"
                                         }
                                     },
-                                    "required": ["message"]
+                                    "required": [
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -40,7 +42,9 @@
             "get": {
                 "operationId": "adminScore.index",
                 "summary": "Get all quiz scores of all users for Admin",
-                "tags": ["AdminScore"],
+                "tags": [
+                    "AdminScore"
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -64,7 +68,11 @@
                                             }
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -79,7 +87,9 @@
             "delete": {
                 "operationId": "adminScore.destroy",
                 "summary": "Reset/Delete a user's progress and score",
-                "tags": ["AdminScore"],
+                "tags": [
+                    "AdminScore"
+                ],
                 "parameters": [
                     {
                         "name": "userId",
@@ -115,7 +125,10 @@
                                             "const": "Score and progress reset successfully"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -136,7 +149,10 @@
                                             "const": "Score record not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -150,7 +166,9 @@
         "/login": {
             "post": {
                 "operationId": "auth.login",
-                "tags": ["Auth"],
+                "tags": [
+                    "Auth"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -167,10 +185,17 @@
                                     },
                                     "role": {
                                         "type": "string",
-                                        "enum": ["admin", "user"]
+                                        "enum": [
+                                            "admin",
+                                            "user"
+                                        ]
                                     }
                                 },
-                                "required": ["email", "password", "role"]
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "role"
+                                ]
                             }
                         }
                     }
@@ -227,7 +252,9 @@
                                             "const": "Role tidak sesuai"
                                         }
                                     },
-                                    "required": ["message"]
+                                    "required": [
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -244,7 +271,9 @@
                                             "const": "Credential salah"
                                         }
                                     },
-                                    "required": ["message"]
+                                    "required": [
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -258,7 +287,9 @@
         "/register": {
             "post": {
                 "operationId": "auth.register",
-                "tags": ["Auth"],
+                "tags": [
+                    "Auth"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -267,7 +298,10 @@
                                 "type": "object",
                                 "properties": {
                                     "name": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "maxLength": 255
                                     },
                                     "email": {
@@ -338,7 +372,9 @@
         "/logout": {
             "post": {
                 "operationId": "auth.logout",
-                "tags": ["Auth"],
+                "tags": [
+                    "Auth"
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -352,7 +388,9 @@
                                             "const": "Logout success"
                                         }
                                     },
-                                    "required": ["message"]
+                                    "required": [
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -366,7 +404,9 @@
         "/dictionary/letters": {
             "post": {
                 "operationId": "letter.store",
-                "tags": ["Letter"],
+                "tags": [
+                    "Letter"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -379,20 +419,30 @@
                                         "maxLength": 10
                                     },
                                     "image": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "maxLength": 2048
                                     },
                                     "image_url": {
-                                        "type": ["string", "null"],
-                                        "format": "uri"
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
                                     },
                                     "is_bisindo": {
-                                        "type": ["boolean", "null"]
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ]
                                     }
                                 },
-                                "required": ["huruf"]
+                                "required": [
+                                    "huruf"
+                                ]
                             }
                         }
                     }
@@ -417,7 +467,11 @@
                                             "$ref": "#/components/schemas/KamusHuruf"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -432,7 +486,9 @@
             },
             "get": {
                 "operationId": "letter.index",
-                "tags": ["Letter"],
+                "tags": [
+                    "Letter"
+                ],
                 "parameters": [
                     {
                         "name": "search",
@@ -472,7 +528,11 @@
                                             }
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -493,7 +553,10 @@
                                             "const": "Tidak ada data ditemukan"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -507,7 +570,9 @@
         "/dictionary/letters/{id}": {
             "post": {
                 "operationId": "letter.update",
-                "tags": ["Letter"],
+                "tags": [
+                    "Letter"
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -530,20 +595,30 @@
                                         "maxLength": 10
                                     },
                                     "image": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "maxLength": 2048
                                     },
                                     "image_url": {
-                                        "type": ["string", "null"],
-                                        "format": "uri"
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
                                     },
                                     "is_bisindo": {
-                                        "type": ["boolean", "null"]
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ]
                                     }
                                 },
-                                "required": ["huruf"]
+                                "required": [
+                                    "huruf"
+                                ]
                             }
                         }
                     }
@@ -568,7 +643,11 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -589,7 +668,10 @@
                                             "const": "Huruf tidak ditemukan"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -604,7 +686,9 @@
             },
             "delete": {
                 "operationId": "letter.destroy",
-                "tags": ["Letter"],
+                "tags": [
+                    "Letter"
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -632,7 +716,10 @@
                                             "const": "Huruf berhasil dihapus"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -653,7 +740,10 @@
                                             "const": "Huruf tidak ditemukan"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -665,7 +755,9 @@
             },
             "get": {
                 "operationId": "letter.show",
-                "tags": ["Letter"],
+                "tags": [
+                    "Letter"
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -696,7 +788,11 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -717,7 +813,10 @@
                                             "const": "Huruf tidak ditemukan"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -731,7 +830,9 @@
         "/dictionary/letters/{id}/learning-status": {
             "post": {
                 "operationId": "letter.toggleLearningStatus",
-                "tags": ["Letter"],
+                "tags": [
+                    "Letter"
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -753,7 +854,9 @@
                                         "type": "boolean"
                                     }
                                 },
-                                "required": ["is_knowing"]
+                                "required": [
+                                    "is_knowing"
+                                ]
                             }
                         }
                     }
@@ -788,7 +891,11 @@
                                             ]
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -809,7 +916,10 @@
                                             "const": "Huruf tidak ditemukan"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -826,7 +936,9 @@
         "/quiz/levels": {
             "post": {
                 "operationId": "level.store",
-                "tags": ["Level"],
+                "tags": [
+                    "Level"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -834,6 +946,9 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
                                     "name": {
                                         "type": "string",
                                         "maxLength": 100
@@ -843,20 +958,30 @@
                                         "maxLength": 255
                                     },
                                     "image": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "maxLength": 2048
                                     },
                                     "image_url": {
-                                        "type": ["string", "null"],
-                                        "format": "uri"
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
                                     },
                                     "description": {
                                         "type": "string"
                                     }
                                 },
-                                "required": ["name", "title", "description"]
+                                "required": [
+                                    "id",
+                                    "name",
+                                    "title",
+                                    "description"
+                                ]
                             }
                         }
                     }
@@ -881,7 +1006,11 @@
                                             "$ref": "#/components/schemas/Level"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -896,7 +1025,9 @@
             },
             "get": {
                 "operationId": "level.index",
-                "tags": ["Level"],
+                "tags": [
+                    "Level"
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -920,7 +1051,11 @@
                                             }
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -941,7 +1076,10 @@
                                             "const": "Levels not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -955,7 +1093,9 @@
         "/quiz/levels/{levelId}": {
             "post": {
                 "operationId": "level.update",
-                "tags": ["Level"],
+                "tags": [
+                    "Level"
+                ],
                 "parameters": [
                     {
                         "name": "levelId",
@@ -973,6 +1113,9 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
                                     "name": {
                                         "type": "string",
                                         "maxLength": 100
@@ -982,20 +1125,30 @@
                                         "maxLength": 255
                                     },
                                     "image": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "maxLength": 2048
                                     },
                                     "image_url": {
-                                        "type": ["string", "null"],
-                                        "format": "uri"
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
                                     },
                                     "description": {
                                         "type": "string"
                                     }
                                 },
-                                "required": ["name", "title", "description"]
+                                "required": [
+                                    "id",
+                                    "name",
+                                    "title",
+                                    "description"
+                                ]
                             }
                         }
                     }
@@ -1020,7 +1173,11 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -1041,7 +1198,10 @@
                                             "const": "Level not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -1056,7 +1216,9 @@
             },
             "delete": {
                 "operationId": "level.destroy",
-                "tags": ["Level"],
+                "tags": [
+                    "Level"
+                ],
                 "parameters": [
                     {
                         "name": "levelId",
@@ -1084,7 +1246,10 @@
                                             "const": "Level deleted successfully"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -1105,7 +1270,10 @@
                                             "const": "Level not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -1117,7 +1285,9 @@
             },
             "get": {
                 "operationId": "level.show",
-                "tags": ["Level"],
+                "tags": [
+                    "Level"
+                ],
                 "parameters": [
                     {
                         "name": "levelId",
@@ -1148,7 +1318,11 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -1168,7 +1342,10 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -1189,7 +1366,10 @@
                                             "const": "Level not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -1203,7 +1383,9 @@
         "/messages": {
             "get": {
                 "operationId": "message.index",
-                "tags": ["Message"],
+                "tags": [
+                    "Message"
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -1227,7 +1409,11 @@
                                             }
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -1239,7 +1425,9 @@
             },
             "post": {
                 "operationId": "message.store",
-                "tags": ["Message"],
+                "tags": [
+                    "Message"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1252,7 +1440,9 @@
                                         "maxLength": 1000
                                     }
                                 },
-                                "required": ["message"]
+                                "required": [
+                                    "message"
+                                ]
                             }
                         }
                     }
@@ -1277,7 +1467,11 @@
                                             "$ref": "#/components/schemas/Message"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -1294,7 +1488,9 @@
         "/profile": {
             "get": {
                 "operationId": "profile.show",
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -1315,7 +1511,11 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -1327,7 +1527,9 @@
             },
             "put": {
                 "operationId": "profile.update",
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
@@ -1335,29 +1537,47 @@
                                 "type": "object",
                                 "properties": {
                                     "name": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "maxLength": 255
                                     },
                                     "email": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "email"
                                     },
                                     "image": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "maxLength": 2048
                                     },
                                     "image_url": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "uri"
                                     },
                                     "password": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "minLength": 8
                                     },
                                     "password_confirmation": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "minLength": 8
                                     }
                                 }
@@ -1385,7 +1605,11 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -1400,7 +1624,9 @@
             },
             "delete": {
                 "operationId": "profile.destroy",
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -1418,7 +1644,10 @@
                                             "const": "Account deleted successfully"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -1432,7 +1661,9 @@
         "/quiz/levels/{levelId}/questions": {
             "post": {
                 "operationId": "question.store",
-                "tags": ["Question"],
+                "tags": [
+                    "Question"
+                ],
                 "parameters": [
                     {
                         "name": "levelId",
@@ -1464,14 +1695,19 @@
                                         }
                                     },
                                     "image": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "maxLength": 2048
                                     },
                                     "image_url": {
-                                        "type": ["string", "null"],
-                                        "format": "uri"
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
                                     }
                                 },
                                 "required": [
@@ -1522,7 +1758,10 @@
                                                     "items": {}
                                                 },
                                                 "image_url": {
-                                                    "type": "string"
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
                                                 }
                                             },
                                             "required": [
@@ -1536,7 +1775,11 @@
                                             ]
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -1551,7 +1794,9 @@
             },
             "get": {
                 "operationId": "question.index",
-                "tags": ["Question"],
+                "tags": [
+                    "Question"
+                ],
                 "parameters": [
                     {
                         "name": "levelId",
@@ -1603,7 +1848,10 @@
                                                         "items": {}
                                                     },
                                                     "image_url": {
-                                                        "type": "string"
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
                                                     }
                                                 },
                                                 "required": [
@@ -1618,7 +1866,11 @@
                                             }
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -1639,7 +1891,10 @@
                                             "const": "Questions not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -1653,7 +1908,9 @@
         "/quiz/levels/{levelId}/questions/{questionId}": {
             "post": {
                 "operationId": "question.update",
-                "tags": ["Question"],
+                "tags": [
+                    "Question"
+                ],
                 "parameters": [
                     {
                         "name": "levelId",
@@ -1693,14 +1950,19 @@
                                         }
                                     },
                                     "image": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "maxLength": 2048
                                     },
                                     "image_url": {
-                                        "type": ["string", "null"],
-                                        "format": "uri"
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
                                     }
                                 },
                                 "required": [
@@ -1764,7 +2026,11 @@
                                             ]
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -1785,7 +2051,10 @@
                                             "const": "Question not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -1800,7 +2069,9 @@
             },
             "delete": {
                 "operationId": "question.destroy",
-                "tags": ["Question"],
+                "tags": [
+                    "Question"
+                ],
                 "parameters": [
                     {
                         "name": "levelId",
@@ -1836,7 +2107,10 @@
                                             "const": "Question deleted successfully"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -1857,7 +2131,10 @@
                                             "const": "Question not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -1869,7 +2146,9 @@
             },
             "get": {
                 "operationId": "question.show",
-                "tags": ["Question"],
+                "tags": [
+                    "Question"
+                ],
                 "parameters": [
                     {
                         "name": "levelId",
@@ -1940,7 +2219,11 @@
                                             ]
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -1961,7 +2244,10 @@
                                             "const": "Question not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -1975,7 +2261,9 @@
         "/quiz/levels/{levelId}/questions/{questionId}/answer": {
             "post": {
                 "operationId": "question.checkAnswer",
-                "tags": ["Question"],
+                "tags": [
+                    "Question"
+                ],
                 "parameters": [
                     {
                         "name": "levelId",
@@ -2005,7 +2293,9 @@
                                         "type": "string"
                                     }
                                 },
-                                "required": ["selected_option"]
+                                "required": [
+                                    "selected_option"
+                                ]
                             }
                         }
                     }
@@ -2039,7 +2329,9 @@
                                                 },
                                                 {
                                                     "type": "integer",
-                                                    "enum": [0]
+                                                    "enum": [
+                                                        0
+                                                    ]
                                                 }
                                             ]
                                         }
@@ -2070,7 +2362,10 @@
                                             "const": "Question not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -2087,7 +2382,9 @@
         "/quiz/levels/{levelId}/completion": {
             "get": {
                 "operationId": "question.checkCompletion",
-                "tags": ["Question"],
+                "tags": [
+                    "Question"
+                ],
                 "parameters": [
                     {
                         "name": "levelId",
@@ -2146,7 +2443,10 @@
                                                     "const": "Level not found"
                                                 }
                                             },
-                                            "required": ["status", "message"]
+                                            "required": [
+                                                "status",
+                                                "message"
+                                            ]
                                         },
                                         {
                                             "type": "object",
@@ -2160,7 +2460,10 @@
                                                     "const": "No questions found for this level"
                                                 }
                                             },
-                                            "required": ["status", "message"]
+                                            "required": [
+                                                "status",
+                                                "message"
+                                            ]
                                         }
                                     ]
                                 }
@@ -2177,7 +2480,9 @@
             "get": {
                 "operationId": "score.index",
                 "summary": "Get all quiz scores for the authenticated user",
-                "tags": ["Score"],
+                "tags": [
+                    "Score"
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -2201,7 +2506,11 @@
                                             }
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -2222,7 +2531,10 @@
                                             "const": "No scores found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -2237,7 +2549,9 @@
             "get": {
                 "operationId": "score.show",
                 "summary": "Get specific level score for the authenticated user",
-                "tags": ["Score"],
+                "tags": [
+                    "Score"
+                ],
                 "parameters": [
                     {
                         "name": "levelId",
@@ -2275,7 +2589,11 @@
                                             ]
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -2296,7 +2614,10 @@
                                             "const": "Score not found for this level"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -2310,7 +2631,9 @@
         "/users": {
             "get": {
                 "operationId": "userManagement.index",
-                "tags": ["UserManagement"],
+                "tags": [
+                    "UserManagement"
+                ],
                 "parameters": [
                     {
                         "name": "role",
@@ -2350,7 +2673,11 @@
                                             }
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -2371,7 +2698,10 @@
                                             "const": "No users found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -2383,7 +2713,9 @@
             },
             "post": {
                 "operationId": "userManagement.store",
-                "tags": ["UserManagement"],
+                "tags": [
+                    "UserManagement"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -2405,16 +2737,25 @@
                                     },
                                     "role": {
                                         "type": "string",
-                                        "enum": ["admin", "user"]
+                                        "enum": [
+                                            "admin",
+                                            "user"
+                                        ]
                                     },
                                     "image": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "maxLength": 2048
                                     },
                                     "image_url": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "uri"
                                     }
                                 },
@@ -2448,7 +2789,11 @@
                                             "$ref": "#/components/schemas/User"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -2465,7 +2810,9 @@
         "/users/{id}": {
             "get": {
                 "operationId": "userManagement.show",
-                "tags": ["UserManagement"],
+                "tags": [
+                    "UserManagement"
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -2496,7 +2843,11 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -2517,7 +2868,10 @@
                                             "const": "User not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -2529,7 +2883,9 @@
             },
             "post": {
                 "operationId": "userManagement.update",
-                "tags": ["UserManagement"],
+                "tags": [
+                    "UserManagement"
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -2556,25 +2912,41 @@
                                         "format": "email"
                                     },
                                     "password": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "minLength": 8
                                     },
                                     "role": {
                                         "type": "string",
-                                        "enum": ["admin", "user"]
+                                        "enum": [
+                                            "admin",
+                                            "user"
+                                        ]
                                     },
                                     "image": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "maxLength": 2048
                                     },
                                     "image_url": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "uri"
                                     }
                                 },
-                                "required": ["name", "email", "role"]
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "role"
+                                ]
                             }
                         }
                     }
@@ -2599,7 +2971,11 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -2620,7 +2996,10 @@
                                             "const": "User not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -2635,7 +3014,9 @@
             },
             "delete": {
                 "operationId": "userManagement.destroy",
-                "tags": ["UserManagement"],
+                "tags": [
+                    "UserManagement"
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -2663,7 +3044,10 @@
                                             "const": "User deleted successfully"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -2684,7 +3068,10 @@
                                             "const": "Cannot delete your own account"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -2705,7 +3092,10 @@
                                             "const": "User not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -2719,7 +3109,9 @@
         "/dictionary/words": {
             "post": {
                 "operationId": "word.store",
-                "tags": ["Word"],
+                "tags": [
+                    "Word"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -2732,20 +3124,30 @@
                                         "maxLength": 50
                                     },
                                     "image": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "maxLength": 2048
                                     },
                                     "image_url": {
-                                        "type": ["string", "null"],
-                                        "format": "uri"
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
                                     },
                                     "is_bisindo": {
-                                        "type": ["boolean", "null"]
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ]
                                     }
                                 },
-                                "required": ["kata"]
+                                "required": [
+                                    "kata"
+                                ]
                             }
                         }
                     }
@@ -2770,7 +3172,11 @@
                                             "$ref": "#/components/schemas/KamusKata"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -2785,7 +3191,9 @@
             },
             "get": {
                 "operationId": "word.index",
-                "tags": ["Word"],
+                "tags": [
+                    "Word"
+                ],
                 "parameters": [
                     {
                         "name": "search",
@@ -2825,7 +3233,11 @@
                                             }
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -2846,7 +3258,10 @@
                                             "const": "No data found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -2860,7 +3275,9 @@
         "/dictionary/words/{id}": {
             "post": {
                 "operationId": "word.update",
-                "tags": ["Word"],
+                "tags": [
+                    "Word"
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -2883,20 +3300,30 @@
                                         "maxLength": 50
                                     },
                                     "image": {
-                                        "type": ["string", "null"],
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "maxLength": 2048
                                     },
                                     "image_url": {
-                                        "type": ["string", "null"],
-                                        "format": "uri"
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
                                     },
                                     "is_bisindo": {
-                                        "type": ["boolean", "null"]
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ]
                                     }
                                 },
-                                "required": ["kata"]
+                                "required": [
+                                    "kata"
+                                ]
                             }
                         }
                     }
@@ -2921,7 +3348,11 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -2942,7 +3373,10 @@
                                             "const": "Word not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -2957,7 +3391,9 @@
             },
             "delete": {
                 "operationId": "word.destroy",
-                "tags": ["Word"],
+                "tags": [
+                    "Word"
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -2985,7 +3421,10 @@
                                             "const": "Word deleted successfully"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -3006,7 +3445,10 @@
                                             "const": "Word not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -3018,7 +3460,9 @@
             },
             "get": {
                 "operationId": "word.show",
-                "tags": ["Word"],
+                "tags": [
+                    "Word"
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -3049,7 +3493,11 @@
                                             "type": "string"
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -3070,7 +3518,10 @@
                                             "const": "Word not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -3084,7 +3535,9 @@
         "/dictionary/words/{id}/learning-status": {
             "post": {
                 "operationId": "word.toggleLearningStatus",
-                "tags": ["Word"],
+                "tags": [
+                    "Word"
+                ],
                 "parameters": [
                     {
                         "name": "id",
@@ -3106,7 +3559,9 @@
                                         "type": "boolean"
                                     }
                                 },
-                                "required": ["is_knowing"]
+                                "required": [
+                                    "is_knowing"
+                                ]
                             }
                         }
                     }
@@ -3141,7 +3596,11 @@
                                             ]
                                         }
                                     },
-                                    "required": ["status", "message", "data"]
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -3162,7 +3621,10 @@
                                             "const": "Word not found"
                                         }
                                     },
-                                    "required": ["status", "message"]
+                                    "required": [
+                                        "status",
+                                        "message"
+                                    ]
                                 }
                             }
                         }
@@ -3186,10 +3648,16 @@
                         "type": "integer"
                     },
                     "image_url": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "image": {
-                        "type": ["string", "null"]
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "huruf": {
                         "type": "string"
@@ -3198,11 +3666,17 @@
                         "type": "integer"
                     },
                     "created_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     },
                     "updated_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     }
                 },
@@ -3224,10 +3698,16 @@
                         "type": "integer"
                     },
                     "image_url": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "image": {
-                        "type": ["string", "null"]
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "kata": {
                         "type": "string"
@@ -3236,11 +3716,17 @@
                         "type": "integer"
                     },
                     "created_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     },
                     "updated_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     }
                 },
@@ -3268,20 +3754,32 @@
                         "type": "string"
                     },
                     "image_url": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "image": {
-                        "type": ["string", "null"]
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "description": {
                         "type": "string"
                     },
                     "created_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     },
                     "updated_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     }
                 },
@@ -3310,11 +3808,17 @@
                         "type": "string"
                     },
                     "created_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     },
                     "updated_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     }
                 },
@@ -3340,21 +3844,33 @@
                         "type": "string"
                     },
                     "image_url": {
-                        "type": ["string", "null"]
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "email_verified_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     },
                     "role": {
                         "type": "string"
                     },
                     "created_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     },
                     "updated_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     }
                 },
@@ -3395,11 +3911,17 @@
                         "type": "integer"
                     },
                     "created_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     },
                     "updated_at": {
-                        "type": ["string", "null"],
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "date-time"
                     }
                 },
@@ -3440,7 +3962,10 @@
                                     }
                                 }
                             },
-                            "required": ["message", "errors"]
+                            "required": [
+                                "message",
+                                "errors"
+                            ]
                         }
                     }
                 }
@@ -3457,7 +3982,9 @@
                                     "description": "Error overview."
                                 }
                             },
-                            "required": ["message"]
+                            "required": [
+                                "message"
+                            ]
                         }
                     }
                 }

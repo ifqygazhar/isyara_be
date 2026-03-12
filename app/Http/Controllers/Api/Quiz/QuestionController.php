@@ -69,7 +69,7 @@ class QuestionController extends Controller
             'correct_option' => 'required|string|max:255',
             'options' => 'required|array',
             'image' => 'nullable|file|image|max:2048',
-            'image_url' => 'nullable|string|url',
+            'image_url' => 'nullable|string',
         ]);
 
         // Handle image
@@ -129,7 +129,7 @@ class QuestionController extends Controller
             'correct_option' => 'required|string|max:255',
             'options' => 'required|array',
             'image' => 'nullable|file|image|max:2048',
-            'image_url' => 'nullable|string|url',
+            'image_url' => 'nullable|string',
         ]);
 
         $imageUrl = $question->image_url; // Default: keep existing image

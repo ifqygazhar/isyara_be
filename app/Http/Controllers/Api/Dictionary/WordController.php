@@ -63,9 +63,16 @@ class WordController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kata' => ['required', 'string', 'max:50', Rule::unique('kamus_katas', 'kata')],
+            'kata' => [
+                'required', 
+                'string', 
+                'max:50', 
+                Rule::unique('kamus_katas', 'kata')->where(function ($query) use ($request) {
+                    return $query->where('is_bisindo', $request->input('is_bisindo', false));
+                })
+            ],
             'image' => 'nullable|file|image|max:2048',
-            'image_url' => 'nullable|string|url',
+            'image_url' => 'nullable|string',
             'is_bisindo' => 'nullable|boolean',
         ]);
 
@@ -102,9 +109,18 @@ class WordController extends Controller
         }
 
         $request->validate([
-            'kata' => ['required', 'string', 'max:50', Rule::unique('kamus_katas', 'kata')->ignore($item->id)],
+            'kata' => [
+                'required', 
+                'string', 
+                'max:50', 
+                Rule::unique('kamus_katas', 'kata')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('is_bisindo', $request->input('is_bisindo', false));
+                    })
+                    ->ignore($item->id)
+            ],
             'image' => 'nullable|file|image|max:2048',
-            'image_url' => 'nullable|string|url',
+            'image_url' => 'nullable|string',
             'is_bisindo' => 'nullable|boolean',
         ]);
 

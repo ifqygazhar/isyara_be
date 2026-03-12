@@ -54,10 +54,11 @@ class LevelController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'id' => 'required|integer|unique:levels,id',
             'name' => 'required|string|max:100',
             'title' => 'required|string|max:255',
             'image' => 'nullable|file|image|max:2048',
-            'image_url' => 'nullable|string|url',
+            'image_url' => 'nullable|string',
             'description' => 'required|string',
         ]);
 
@@ -77,12 +78,13 @@ class LevelController extends Controller
             ], 422);
         }
 
-        $level = Level::create([
-            'name' => $request->input('name'),
-            'title' => $request->input('title'),
-            'image_url' => $imageUrl,
-            'description' => $request->input('description'),
-        ]);
+        $level = new Level();
+        $level->id = $request->input('id');
+        $level->name = $request->input('name');
+        $level->title = $request->input('title');
+        $level->image_url = $imageUrl;
+        $level->description = $request->input('description');
+        $level->save();
 
         // Load questions count
         $level->loadCount('questions');
@@ -99,10 +101,11 @@ class LevelController extends Controller
         }
 
         $request->validate([
+            'id' => 'required|integer|unique:levels,id,' . $levelId,
             'name' => 'required|string|max:100',
             'title' => 'required|string|max:255',
             'image' => 'nullable|file|image|max:2048',
-            'image_url' => 'nullable|string|url',
+            'image_url' => 'nullable|string',
             'description' => 'required|string',
         ]);
 
@@ -131,12 +134,12 @@ class LevelController extends Controller
             Utils::deleteImageFromStorage($level->image_url);
         }
 
-        $level->update([
-            'name' => $request->input('name'),
-            'title' => $request->input('title'),
-            'image_url' => $imageUrl,
-            'description' => $request->input('description'),
-        ]);
+        $level->id = $request->input('id');
+        $level->name = $request->input('name');
+        $level->title = $request->input('title');
+        $level->image_url = $imageUrl;
+        $level->description = $request->input('description');
+        $level->save();
 
         // Load questions count
         $level->loadCount('questions');

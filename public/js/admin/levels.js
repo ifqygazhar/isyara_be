@@ -396,6 +396,7 @@ class LevelsManager extends CrudManager {
 
         document.getElementById("levelId").value = item.id;
         document.getElementById("levelNumber").value = item.id;
+        document.getElementById("levelNumber").disabled = false; // Aktifkan saat edit
         document.getElementById("title").value = item.title || item.name;
         document.getElementById("description").value = item.description || "";
 
@@ -458,6 +459,7 @@ class LevelsManager extends CrudManager {
 
             // SELALU gunakan FormData untuk support file upload
             const formData = new FormData();
+            formData.append("id", levelNumber);
             formData.append("name", `Level ${levelNumber}`);
             formData.append("title", title);
             formData.append("description", description);
@@ -853,6 +855,7 @@ class LevelsManager extends CrudManager {
         if (title === "Tambah Level") {
             document.getElementById("levelForm").reset();
             document.getElementById("levelId").value = "";
+            document.getElementById("levelNumber").disabled = false; // Aktifkan saat create
 
             // Reset level image fields
             this.selectedLevelImageFile = null;

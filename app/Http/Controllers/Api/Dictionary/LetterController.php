@@ -63,9 +63,16 @@ class LetterController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'huruf' => ['required', 'string', 'max:10', Rule::unique('kamus_hurufs', 'huruf')],
+            'huruf' => [
+                'required', 
+                'string', 
+                'max:10', 
+                Rule::unique('kamus_hurufs', 'huruf')->where(function ($query) use ($request) {
+                    return $query->where('is_bisindo', $request->input('is_bisindo', false));
+                })
+            ],
             'image' => 'nullable|file|image|max:2048',
-            'image_url' => 'nullable|string|url',
+            'image_url' => 'nullable|string',
             'is_bisindo' => 'nullable|boolean',
         ]);
 
@@ -106,9 +113,18 @@ class LetterController extends Controller
         }
 
         $request->validate([
-            'huruf' => ['required', 'string', 'max:10', Rule::unique('kamus_hurufs', 'huruf')->ignore($item->id)],
+            'huruf' => [
+                'required', 
+                'string', 
+                'max:10', 
+                Rule::unique('kamus_hurufs', 'huruf')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('is_bisindo', $request->input('is_bisindo', false));
+                    })
+                    ->ignore($item->id)
+            ],
             'image' => 'nullable|file|image|max:2048',
-            'image_url' => 'nullable|string|url',
+            'image_url' => 'nullable|string',
             'is_bisindo' => 'nullable|boolean',
         ]);
 
